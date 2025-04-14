@@ -55,7 +55,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.mysquad.R
 import com.example.mysquad.ui.theme.ThemeMode
-
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun LoginScreenWithAnimation(
@@ -71,14 +76,13 @@ fun LoginScreenWithAnimation(
 
     val themeOptions = listOf("Light", "System", "Dark")
     val themeIcons = listOf(Icons.Default.WbSunny, Icons.Default.Settings, Icons.Default.DarkMode)
-    var selectedIndex by remember { mutableStateOf(1) } // 默认选中“System”
+    var selectedIndex by remember { mutableIntStateOf(1) } // 默认选中“System”
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // 🧩 主内容区域（中间居中）
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -86,17 +90,14 @@ fun LoginScreenWithAnimation(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            GradientArtText1()
+            Spacer(modifier = Modifier.height(8.dp))
             AnimatedVisibility(
                 visibleState = visibleState,
                 enter = fadeIn(tween(1000)) + scaleIn(initialScale = 0.6f, animationSpec = tween(1000)),
                 exit = fadeOut()
             ) {
-                Text(
-                    text = "Login MySquad",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color(0xFF1565C0),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                GradientArtText2()
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -143,7 +144,7 @@ fun LoginScreenWithAnimation(
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text("Login", color = Color.White)
+                Text("Login", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -162,20 +163,20 @@ fun LoginScreenWithAnimation(
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Sign in with Google", color = Color(0xFF4285F4))
+                Text("Sign in with Google", color = Color(0xFF4285F4),fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 TextButton(onClick = onForgotPasswordClick) {
-                    Text("Forgot Password?")
+                    Text("Forgot Password?", fontSize = 15.sp)
                 }
                 TextButton(onClick = onSignUpClick) {
-                    Text("Sign Up")
+                    Text("Sign Up", fontSize = 15.sp)
                 }
             }
         }
@@ -275,6 +276,34 @@ fun ThemeModeSelector(
             }
         }
     }
+}
+
+@Composable
+fun GradientArtText1() {
+    BasicText(
+        text = "MySquad",
+        style = TextStyle(
+            fontSize = 50.sp,
+            fontWeight = FontWeight.Bold,
+            brush = Brush.linearGradient(
+                colors = listOf(Color(0xFF42A5F5), Color(0xFF7E57C2))
+            )
+        )
+    )
+}
+
+@Composable
+fun GradientArtText2() {
+    BasicText(
+        text = "Let’s Get Moving!",
+        style = TextStyle(
+            fontSize = 45.sp,
+            fontWeight = FontWeight.Light,
+            brush = Brush.linearGradient(
+                colors = listOf(Color(0xFF7E57C2), Color(0xFF42A5F5))
+            )
+        )
+    )
 }
 
 @Composable
