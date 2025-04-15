@@ -2,7 +2,12 @@ package com.example.mysquad.ui.screens.login
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -12,6 +17,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,6 +25,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -57,6 +64,7 @@ import com.example.mysquad.R
 import com.example.mysquad.ui.theme.ThemeMode
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -274,6 +282,36 @@ fun ThemeModeSelector(
                     tint = contentColor
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun ScrollingEmojiBackgroundLayer() {
+    val emojis = listOf("🏃", "🏀", "⚽", "🏊", "🚴", "🤸", "⛹️", "🏋️", "🧘", "🥏", "⛷️", "🏂")
+    val infiniteTransition = rememberInfiniteTransition()
+    val offsetY by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = -1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 12000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .offset(y = offsetY.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        repeat(80) {
+            Text(
+                text = emojis.random(),
+                fontSize = 28.sp,
+                modifier = Modifier.alpha(0.12f)
+            )
         }
     }
 }
