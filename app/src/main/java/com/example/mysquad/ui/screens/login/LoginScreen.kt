@@ -13,11 +13,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -64,8 +63,10 @@ import com.example.mysquad.R
 import com.example.mysquad.ui.theme.ThemeMode
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -84,7 +85,7 @@ fun LoginScreenWithAnimation(
 
     val themeOptions = listOf("Light", "System", "Dark")
     val themeIcons = listOf(Icons.Default.WbSunny, Icons.Default.Settings, Icons.Default.DarkMode)
-    var selectedIndex by remember { mutableIntStateOf(1) } // 默认选中“System”
+    var selectedIndex by remember { mutableIntStateOf(1) }
 
     Box(
         modifier = Modifier
@@ -189,7 +190,6 @@ fun LoginScreenWithAnimation(
             }
         }
 
-        // 🌙 主题切换器浮动底部
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -217,7 +217,13 @@ fun LoginScreenWithAnimation(
                             }
                         )
                     },
-                    modifier = Modifier.size(52.dp),
+                    modifier = Modifier
+                        .size(52.dp)
+                        .shadow(
+                            elevation = if (isSelected) 6.dp else 0.dp,
+                            shape = CircleShape,
+                            clip = false
+                        ),
                     shape = CircleShape,
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = bgColor,
@@ -289,29 +295,54 @@ fun ThemeModeSelector(
 @Composable
 fun ScrollingEmojiBackgroundLayer() {
     val emojis = listOf("🏃", "🏀", "⚽", "🏊", "🚴", "🤸", "⛹️", "🏋️", "🧘", "🥏", "⛷️", "🏂")
-    val infiniteTransition = rememberInfiniteTransition()
-    val offsetY by infiniteTransition.animateFloat(
+
+    val rows = 20   // 总共行数，越大越平滑
+    val columns = 6 // 每行 emoji 个数
+
+    // 🔁 提前生成固定的 Emoji 网格，避免卡顿
+    val emojiGrid = remember {
+        List(rows * 2) { // 多一倍用于无缝滚动
+            List(columns) {
+                emojis.random()
+            }
+        }
+    }
+
+    // ⏳ 动画滚动偏移量（缓慢平滑）
+    val transition = rememberInfiniteTransition()
+    val offsetY by transition.animateFloat(
         initialValue = 0f,
-        targetValue = -1000f,
+        targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 12000, easing = LinearEasing),
+            animation = tween(durationMillis = 30000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         )
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .offset(y = offsetY.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        repeat(80) {
-            Text(
-                text = emojis.random(),
-                fontSize = 28.sp,
-                modifier = Modifier.alpha(0.12f)
-            )
+    val scrollHeight = with(LocalDensity.current) { (rows * 36).dp.toPx() } // 每行 36dp 高度
+
+    // 🌌 使用 Canvas 实现背景内容向上滚动，并循环填充
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val totalHeight = size.height
+        val rowHeight = scrollHeight / (rows * 2)
+
+        val dy = -offsetY * scrollHeight % scrollHeight
+
+        emojiGrid.forEachIndexed { rowIndex, row ->
+            val y = rowIndex * rowHeight + dy
+            if (y + rowHeight < 0 || y > totalHeight) return@forEachIndexed
+
+            row.forEachIndexed { colIndex, emoji ->
+                drawContext.canvas.nativeCanvas.drawText(
+                    emoji,
+                    colIndex * size.width / columns + 8f,
+                    y + 32f,
+                    android.graphics.Paint().apply {
+                        textSize = 32f
+                        alpha = 25 // 透明度，0~255
+                    }
+                )
+            }
         }
     }
 }
@@ -324,7 +355,12 @@ fun GradientArtText1() {
             fontSize = 50.sp,
             fontWeight = FontWeight.Bold,
             brush = Brush.linearGradient(
-                colors = listOf(Color(0xFF42A5F5), Color(0xFF7E57C2))
+                colors = listOf(
+                        Color(0xFF42A5F5), // blue
+                    Color(0xFF64B5F6), // light blue
+                    Color(0xFFBA68C8), // lavender-ish
+                    Color(0xFF7E57C2)  // purple
+                )
             )
         )
     )
@@ -338,7 +374,7 @@ fun GradientArtText2() {
             fontSize = 45.sp,
             fontWeight = FontWeight.Light,
             brush = Brush.linearGradient(
-                colors = listOf(Color(0xFF7E57C2), Color(0xFF42A5F5))
+                colors = listOf(Color(0xFF7E57C2), Color(0xFFBA68C8),Color(0xFF64B5F6),Color(0xFF42A5F5))
             )
         )
     )
