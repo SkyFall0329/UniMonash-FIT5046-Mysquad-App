@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import com.example.mysquad.ui.screens.forgotpassword.SixDigitCodeInput
@@ -41,7 +42,7 @@ fun RegisterVerifyScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Enter Verification Code", style = MaterialTheme.typography.headlineSmall)
+        Text("Enter Verification Code", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary,fontWeight = FontWeight.Bold,)
         Spacer(modifier = Modifier.height(16.dp))
         Text("Code sent to $email", style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(32.dp))

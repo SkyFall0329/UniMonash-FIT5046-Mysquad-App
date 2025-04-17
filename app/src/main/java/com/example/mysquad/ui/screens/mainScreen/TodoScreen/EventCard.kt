@@ -35,7 +35,10 @@ fun EventCard(event: Event, onClick: () -> Unit, isHostedByMe: Boolean, currentU
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(

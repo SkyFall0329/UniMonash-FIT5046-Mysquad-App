@@ -350,7 +350,7 @@ fun ScrollingEmojiBackgroundLayer() {
 @Composable
 fun GradientArtText1() {
     BasicText(
-        text = "MySquad",
+        text = "PlaySquad",
         style = TextStyle(
             fontSize = 50.sp,
             fontWeight = FontWeight.Bold,

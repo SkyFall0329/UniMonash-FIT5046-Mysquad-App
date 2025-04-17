@@ -3,6 +3,7 @@ package com.example.mysquad
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +16,7 @@ import com.example.mysquad.ui.theme.ThemeMode
 
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(64)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -26,7 +28,8 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
             }
 
-            MySquadTheme(darkTheme = isDarkTheme) {
+            MySquadTheme( dynamicColor = false,
+                darkTheme = isDarkTheme){
                 val navController = rememberNavController()
 
                 AppNavGraph(

@@ -26,6 +26,7 @@ import java.util.Date
 import java.util.Locale
 import com.example.mysquad.componets.ashley.Downregulate
 import com.example.mysquad.navigation.Screen
+import androidx.compose.material3.MaterialTheme
 
 @RequiresApi(64)
 @Composable
@@ -36,39 +37,49 @@ fun SquareScreen(navController: NavController, modifier: Modifier = Modifier) {
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
+        // 🟧 Page Title
         Surface(
             shape = RoundedCornerShape(30.dp),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(5.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(30.dp)
+                )
         ) {
             Text(
-                text = "Join an Event",
+                text = "Activity Square",
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
-                color = Color(0xFFFF6F00),
-                modifier = Modifier
-                    .padding(start = 10.dp, top = 20.dp, bottom = 20.dp, end = 10.dp)
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 20.dp)
             )
         }
-        Row(modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically) {
-            Box( modifier =  Modifier.weight(1.0f)) {
+
+        // 🟦 Filter row: event type + date picker
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
                 Downregulate(
-                    labelText = "select a type of event",
-                    states = listOf("Basketball", "Football", "Volleyball", "Badminton",
-                        "Table Tennis", "Tennis", "Swimming", "Aerobics")
+                    labelText = "Select event type",
+                    states = listOf(
+                        "Basketball", "Football", "Volleyball", "Badminton",
+                        "Table Tennis", "Tennis", "Swimming", "Aerobics"
+                    )
                 )
             }
             Spacer(modifier = Modifier.width(10.dp))
-            Box( modifier =  Modifier.weight(1.0f)) {
+            Box(modifier = Modifier.weight(1f)) {
                 DisplayDatePicker()
             }
         }
-        Eventlazycolumn(navController)
+
+        // 📋 Event List
+        EventLazyColumn(navController)
     }
 }
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -76,7 +87,7 @@ fun SquareScreen(navController: NavController, modifier: Modifier = Modifier) {
 @Composable
 fun DisplayDatePicker(modifier: Modifier = Modifier) {
     val calendar = Calendar.getInstance()
-    var birthday by remember { mutableStateOf("") }
+    var selectedDateText by remember { mutableStateOf("") }
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
@@ -84,22 +95,23 @@ fun DisplayDatePicker(modifier: Modifier = Modifier) {
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableLongStateOf(calendar.timeInMillis) }
 
-
-    Column(modifier = Modifier.padding(vertical = 1.dp)) {
+    Column(modifier = modifier.padding(vertical = 1.dp)) {
         OutlinedTextField(
-            value = birthday,
+            value = selectedDateText,
             onValueChange = {},
             readOnly = true,
-            label = { Text("select date") },
+            label = { Text("Select date") },
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { showDatePicker = true },
-            //0xFFFFE4D6
-            colors = TextFieldDefaults.colors(Color(0xFFFFECDB)),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.DateRange,
-                    contentDescription = "Select Date",
+                    contentDescription = "Open date picker",
                     modifier = Modifier
                         .clickable { showDatePicker = true }
                         .size(36.dp)
@@ -107,48 +119,41 @@ fun DisplayDatePicker(modifier: Modifier = Modifier) {
             }
         )
 
-
         if (showDatePicker) {
             DatePickerDialog(
-                onDismissRequest = {
-                    showDatePicker = false
-                },
+                onDismissRequest = { showDatePicker = false },
                 confirmButton = {
                     TextButton(onClick = {
                         showDatePicker = false
-                        selectedDate = datePickerState.selectedDateMillis!!
-                        birthday = " ${formatter.format(Date(selectedDate))}"
+                        selectedDate = datePickerState.selectedDateMillis ?: selectedDate
+                        selectedDateText = formatter.format(Date(selectedDate))
                     }) {
-                        Text(text = "OK")
+                        Text("OK")
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = {
-                        showDatePicker = false
-                    }) {
-                        Text(text = "Cancel")
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text("Cancel")
                     }
                 }
-            ) //end of dialog
-            { //still column scope
-                DatePicker(
-                    state = datePickerState
-                )
+            ) {
+                DatePicker(state = datePickerState)
             }
-        }// end of if
+        }
     }
 }
 
 
 @Composable
-fun Eventlazycolumn(navController: NavController) {
+fun EventLazyColumn(navController: NavController) {
     val events = remember {
         mutableStateListOf(
-            "677 Basketball", "title1 Basketball", "677 Basketball",
-            "title3xxx5555 Basketball", "title-677lllBasketball", "677 Basketball", "677yyyy Basketball"
+            "677 Basketball", "Title 1 Basketball", "Local Game",
+            "Title 3 - Weekly Match", "Friendly Match", "Open Practice", "Evening Session"
         )
     }
-    val numbers = remember {
+
+    val participantInfo = remember {
         mutableStateListOf("[3/7]", "[3/7]", "[3/7]", "[3/6]", "[5/12]", "[3/7]", "[3/7]")
     }
 
@@ -157,7 +162,7 @@ fun Eventlazycolumn(navController: NavController) {
             items(events.size) { index ->
                 SportsEventCard(
                     eventTitle = events[index],
-                    num = numbers[index],
+                    num = participantInfo[index],
                     onClick = { navController.navigate(Screen.PostDetail.route) }
                 )
             }
@@ -175,32 +180,37 @@ fun SportsEventCard(
     val context = LocalContext.current
 
     Row(
+
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .clickable(onClick = {
+        modifier = modifier
+            .clickable {
                 Toast.makeText(context, eventTitle, Toast.LENGTH_SHORT).show()
-                onClick() // 👈 执行跳转逻辑
-            })
+                onClick()
+            }
             .fillMaxWidth()
             .padding(vertical = 10.dp)
-            .background(Color(0xFFFFE4D6), RoundedCornerShape(10.dp))
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(10.dp)
+            )
     ) {
         Text(
-            color = MaterialTheme.colorScheme.primary,
             text = eventTitle,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium.copy(
+                color = Color.Black // 强制设为黑色
+            ),
             modifier = Modifier
                 .padding(horizontal = 10.dp, vertical = 30.dp)
                 .weight(1.0f),
         )
 
         Text(
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
             text = num,
-            fontSize = 20.sp,
+            style = MaterialTheme.typography.titleMedium.copy(
+                color = Color.Black,
+                fontWeight = FontWeight.Bold
+            ),
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 30.dp),
         )
     }

@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
@@ -22,16 +24,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.mysquad.entity.larry.Activity
 
 @Composable
 fun HomeScreen() {
-    var sampleActivities: List<Activity> = listOf(
-        Activity("篮球训练", "2025-04-16 17:30", isHost = true),
-        Activity("晨跑团", "2025-04-17 06:45", isHost = false),
-        Activity("瑜伽放松", "2025-04-18 10:00", isHost = true)
+    val sampleActivities: List<Activity> = listOf(
+        Activity("Basketball Training", "2025-04-16 17:30", isHost = true),
+        Activity("Morning Run Group", "2025-04-17 06:45", isHost = false),
+        Activity("Yoga Relaxation", "2025-04-18 10:00", isHost = true)
     )
 
     val temperature = "22°C"
@@ -39,20 +42,23 @@ fun HomeScreen() {
     val hasActivities = sampleActivities.isNotEmpty()
 
     Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 24.dp)
+
     ) {
-        // 🟦 顶部标题
+        // 🟦 App Title
         Text(
-            text = "PlaySquad",
+            text = "Welcome to PlaySquad",
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 20.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🌤 天气展示
+        // 🌤 Weather Display
         WeatherCard(
             temperature = temperature,
             weatherType = weatherType
@@ -60,7 +66,7 @@ fun HomeScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 📋 活动标题
+        // 📋 Section Title
         Text(
             text = "Your Activities",
             style = MaterialTheme.typography.titleMedium,
@@ -70,18 +76,12 @@ fun HomeScreen() {
         Spacer(modifier = Modifier.height(12.dp))
 
         if (hasActivities) {
-            val activityCards = sampleActivities.map { activity ->
-                @Composable {
-                    ActivityCard(activity = activity)
-                }
-            }
-
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                activityCards.forEach { card ->
-                    item { card() }
+                itemsIndexed(sampleActivities) { index, activity ->
+                    ActivityCard(activity = activity, index = index)
                 }
             }
         } else {
@@ -92,8 +92,8 @@ fun HomeScreen() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "点击下方加号或者 Square 去创建或加入活动吧 😊",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "Tap the + button below or go to Square to create or join an event 😊",
+                    style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                 )
@@ -101,51 +101,66 @@ fun HomeScreen() {
         }
     }
 }
+
+
 @Composable
-fun ActivityCard(activity: Activity) {
+fun ActivityCard(activity: Activity, index: Int) {
+    val orangeAlt = MaterialTheme.colorScheme.surfaceVariant
+    val roleLabel = if (activity.isHost) "Host" else "Participant"
+    val roleColor = if (activity.isHost)
+        Color(0xFFF65B28)
+    else
+        Color(0xFF0059FF)
+
+    // 🟡 Alternating background color
+    val backgroundColor = if (false)
+        MaterialTheme.colorScheme.surface
+    else
+        orangeAlt
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = backgroundColor
         ),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // 活动名称
+            // Activity title
             Text(
                 text = activity.title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // 时间行
+            // Activity time row
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.AccessTime,
                     contentDescription = "Time",
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = activity.time,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // 标签
-            val tagText = if (activity.isHost) "主持" else "参与"
-            val tagColor = if (activity.isHost) Color(0xFF4CAF50) else Color(0xFF2196F3)
-
+            // Role tag
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = tagColor.copy(alpha = 0.15f)
+                color = roleColor.copy(alpha = 0.15f)
             ) {
                 Text(
-                    text = tagText,
-                    color = tagColor,
+                    text = roleLabel,
+                    color = roleColor,
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
@@ -153,10 +168,14 @@ fun ActivityCard(activity: Activity) {
         }
     }
 }
+
+
+
+
 @Composable
 fun WeatherCard(
     temperature: String,
-    weatherType: String // e.g., "Clear", "Clouds", "Rain"
+    weatherType: String
 ) {
     val weatherIcon = when (weatherType.lowercase()) {
         "clear" -> Icons.Default.WbSunny
@@ -167,37 +186,36 @@ fun WeatherCard(
     }
 
     val weatherColor = when (weatherType.lowercase()) {
-        "clear" -> Color(0xFFFFA726)
-        "clouds" -> Color.Gray
-        "rain" -> Color(0xFF4FC3F7)
-        "snow" -> Color(0xFF90CAF9)
-        else -> Color.LightGray
+        "clear" -> Color(0xFFFFA726)     // Orange
+        "clouds" -> Color(0xFF90A4AE)    // Light Gray-Blue
+        "rain" -> Color(0xFF4FC3F7)      // Sky Blue
+        "snow" -> Color(0xFF90CAF9)      // Cold Blue
+        else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
     }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = weatherIcon,
-                contentDescription = "Weather",
+                contentDescription = "Weather icon",
                 tint = weatherColor,
                 modifier = Modifier.size(40.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
-                    text = "当前温度：$temperature",
-                    style = MaterialTheme.typography.bodyLarge
+                    text = "Temperature: $temperature",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = when (weatherType.lowercase()) {
@@ -207,7 +225,8 @@ fun WeatherCard(
                         "snow" -> "Snowing ❄️"
                         else -> "Unknown 🌫"
                     },
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

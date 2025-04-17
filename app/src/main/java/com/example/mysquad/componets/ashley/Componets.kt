@@ -36,6 +36,7 @@ import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material3.MaterialTheme
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,58 +108,63 @@ fun DisplayDatePicker(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Downregulate(labelText: String, states: List<String>, modifier: Modifier = Modifier){
+fun Downregulate(
+    labelText: String,
+    states: List<String>,
+    modifier: Modifier = Modifier
+) {
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedState = remember { mutableStateOf(states[0])}
-    Column(
-        modifier = modifier
-//            .fillMaxSize()
-//            .padding(16.dp)//给这个 Column 的 四个方向（上、下、左、右）都添加 8dp 的内边距（padding）
-    )
-    {
-//        Spacer(modifier = Modifier.height(36.dp))
+    var selectedState = remember { mutableStateOf(states[0]) }
+
+    Column(modifier = modifier) {
         ExposedDropdownMenuBox(
             expanded = isExpanded,
-            onExpandedChange = { isExpanded = it },
-            // 设置背景颜色为白色
-//            colors = ExposedDropdownMenuDefaults.colors(
-//                containerColor = Color.White,  // 设置下拉框背景色为白色
-//                focusedIndicatorColor = Color.Transparent,  // 去除聚焦时的边框颜色
-//                unfocusedIndicatorColor = Color.Transparent // 去除未聚焦时的边框颜色
-//            )
+            onExpandedChange = { isExpanded = it }
         ) {
             OutlinedTextField(
                 modifier = Modifier
                     .menuAnchor()
                     .fillMaxWidth()
-                    .focusProperties {
-                        canFocus = false
-                    },
-                colors = TextFieldDefaults.colors(Color(0xFFFFECDB)),
+                    .focusProperties { canFocus = false },
                 readOnly = true,
                 value = selectedState.value,
                 onValueChange = {},
-                label = {  Text(text = labelText) },
-//manages the arrow icon up and down
+                label = { Text(text = labelText) },
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent
+                ),
                 trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                }
             )
+
             ExposedDropdownMenu(
                 expanded = isExpanded,
                 onDismissRequest = { isExpanded = false }
-            )
-            {
+            ) {
                 states.forEach { selectionOption ->
                     DropdownMenuItem(
-                        text = { Text(selectionOption) },
+                        text = {
+                            Text(
+                                text = selectionOption,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
                         onClick = {
                             selectedState.value = selectionOption
-                            isExpanded = false},
-                        contentPadding =
-                            ExposedDropdownMenuDefaults.ItemContentPadding,
+                            isExpanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                     )
                 }
             }
         }
     }
 }
+

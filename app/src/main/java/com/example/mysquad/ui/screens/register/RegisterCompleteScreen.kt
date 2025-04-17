@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.VpnKey
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun RegisterCompleteScreen(onRegisterDone: () -> Unit) {
@@ -60,7 +61,7 @@ fun RegisterCompleteScreen(onRegisterDone: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Register - Final Step", style = MaterialTheme.typography.titleLarge)
+        Text("Set Up Your Profile", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary,fontWeight = FontWeight.Bold,)
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(

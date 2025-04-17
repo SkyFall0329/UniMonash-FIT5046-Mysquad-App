@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -33,7 +34,7 @@ fun RegisterEmailScreen(onNext: (String) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Register - Step 1", style = MaterialTheme.typography.titleLarge)
+        Text("Please Enter Your Email", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary,fontWeight = FontWeight.Bold,)
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = email.value,

@@ -5,6 +5,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,6 +25,7 @@ import com.example.mysquad.ui.screens.mainScreen.TodoScreen.EventDetailScreen
 import com.example.mysquad.ui.screens.mainScreen.TodoScreen.RequestsList
 import com.example.mysquad.ui.screens.mainScreen.TodoScreen.TodoScreen
 import com.example.mysquad.ui.screens.mainScreen.TodoScreen.UserProfile
+import com.example.mysquad.entity.larry.UserProfile
 
 @RequiresApi(64)
 @Composable
@@ -34,15 +37,23 @@ fun MainScreen() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 4.dp
+            ) {
                 items.forEach { item ->
+                    val isSelected = currentRoute == item.route
+
                     NavigationBarItem(
-                        selected = currentRoute == item.route,
+                        selected = isSelected,
                         onClick = {
-                            if (currentRoute != item.route) {
+                            if (currentRoute != item.route && item.route.isNotBlank()) {
                                 navController.navigate(item.route) {
-                                    popUpTo(BottomBarItem.Home.route)
+                                    popUpTo(BottomBarItem.Home.route) {
+                                        saveState = true
+                                    }
                                     launchSingleTop = true
+                                    restoreState = true
                                 }
                             }
                         },
@@ -53,12 +64,25 @@ fun MainScreen() {
                             )
                         },
                         label = {
-                            if (item.label.isNotEmpty()) Text(item.label)
-                        }
+                            if (item.label.isNotEmpty()) {
+                                Text(
+                                    text = item.label,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            indicatorColor = Color.Transparent // 💥 关键！取消底色圆圈
+                        )
                     )
                 }
             }
         }
+
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -67,14 +91,16 @@ fun MainScreen() {
         ) {
             composable(BottomBarItem.Home.route) { HomeScreen() }
             composable(BottomBarItem.Square.route) { SquareScreen(navController) }
-            composable(Screen.PostDetail.route) { GetPostDetail() }
+            composable(Screen.PostDetail.route) {  GetPostDetail(onBackClick = { navController.popBackStack() }) }
             composable(BottomBarItem.Add.route) { AddScreen() }
-            composable(Screen.TodoScreen.route) { TodoScreen(
-                currentUser = LocalUser.user1,
-                navigateToDetail = { eventId ->
-                    navController.navigate(Screen.EventDetail.createRoute(eventId))
-                }
-            ) }
+            composable(Screen.TodoScreen.route) {
+                TodoScreen(
+                    currentUser = LocalUser.user1,
+                    navigateToDetail = { eventId ->
+                        navController.navigate(Screen.EventDetail.createRoute(eventId))
+                    }
+                )
+            }
             composable(
                 route = Screen.EventDetail.route,
                 arguments = listOf(navArgument("eventId") { type = NavType.IntType })
@@ -97,7 +123,8 @@ fun MainScreen() {
                 RequestsList(
                     onAvatarClick = { userId ->
                         // navController.navigate(Screen.UserProfile.createRoute(userId))
-                    },navController = navController
+                    },
+                    navController = navController
                 )
             }
             composable(
@@ -112,7 +139,20 @@ fun MainScreen() {
                     }
                 )
             }
-            composable(BottomBarItem.Profile.route) { ProfileScreen() }
+            composable(Screen.ProfileScreen.route) {
+                ProfileScreen(currentUser = UserProfile(
+                    userID = "35195967",
+                    userName = "Letao Wang",
+                    gender = "Male",
+                    userEmail = "letao.wang@student.monash.edu",
+                    faculty = "Faculty of Information Technology",
+                    degree = "Master",
+                    birthday = "1998-06-15",
+                    favoriteSports = "Basketball, Running, Yoga",
+                    bio = "Hi! I'm passionate about tech and fitness. I enjoy coding and leading group workouts!"
+                )
+                )
+            }
         }
     }
 }

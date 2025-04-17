@@ -12,6 +12,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import com.example.mysquad.entity.jianhui.Event
 import com.example.mysquad.entity.jianhui.User
@@ -31,19 +32,12 @@ fun TodoScreen(currentUser: User, navigateToDetail: (Int) -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "My Events",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                brush = Brush.linearGradient(listOf(Color(0xFFFF7C46), Color(0xFFF85C28))),
-                shadow = Shadow(
-                    color = Color.Gray,
-                    offset = Offset(2f, 2f),
-                    blurRadius = 4f
-                )
-            ),
+            fontWeight = FontWeight.Bold,
+            fontSize = 35.sp,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 36.dp)
         )
-        HorizontalDivider(thickness = 3.dp)
         SingleChoiceSegmentedButton(
             selectedIndex = selectedTab,
             onTabSelected = { selectedTab = it }
@@ -89,8 +83,8 @@ fun SingleChoiceSegmentedButton(
                     selected = index == selectedIndex,
                     onClick = { onTabSelected(index) },
                     colors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = Color(0xFFF85C28), // Orange
-                        activeContentColor = Color.White,
+                        activeContainerColor = Color(0xFFFF7D5C), // Orange
+                        activeContentColor = Color(0xFFFFFFFF),
                         inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                         inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),

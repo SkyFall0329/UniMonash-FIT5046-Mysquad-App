@@ -16,9 +16,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,15 +43,15 @@ import com.example.mysquad.entity.jasmine.FriendRequest
 import com.example.mysquad.navigation.Screen
 
 @Composable
-fun RequestsList(navController: NavHostController,onAvatarClick: (String) -> Unit) {
+fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Unit) {
     val friendRequests = remember {
         mutableStateListOf(
             FriendRequest("1", "Ashely Zhu", android.R.drawable.ic_menu_camera, "Sunday Basketball"),
             FriendRequest("2", "James Ling", android.R.drawable.ic_menu_camera, "Popping show"),
             FriendRequest("3", "Jasmine", android.R.drawable.ic_menu_camera, "Happy Swimming"),
             FriendRequest("4", "Leta Zhang", android.R.drawable.ic_menu_camera, "Yoga Nice"),
-            FriendRequest("5", "Elan Ceres",android.R.drawable.ic_menu_camera, "K-pop dance"),
-            FriendRequest("6", "Anon Chi",android.R.drawable.ic_menu_camera, "Anime Watching")
+            FriendRequest("5", "Elan Ceres", android.R.drawable.ic_menu_camera, "K-pop dance"),
+            FriendRequest("6", "Anon Chi", android.R.drawable.ic_menu_camera, "Anime Watching")
         )
     }
 
@@ -55,15 +60,26 @@ fun RequestsList(navController: NavHostController,onAvatarClick: (String) -> Uni
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(32.dp))
-        Text(
-            text = "Applicant List",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Applicant List",
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
 
         if (friendRequests.isEmpty()) {
-            // Display when no applicants
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,11 +99,9 @@ fun RequestsList(navController: NavHostController,onAvatarClick: (String) -> Uni
                         request = request,
                         onAccept = {
                             friendRequests.remove(request)
-                            // 添加接受逻辑
                         },
                         onReject = {
                             friendRequests.remove(request)
-                            // 添加拒绝逻辑
                         },
                         onAvatarClick = {
                             navController.navigate(Screen.UserProfile.createRoute(request.id))
@@ -99,6 +113,7 @@ fun RequestsList(navController: NavHostController,onAvatarClick: (String) -> Uni
         }
     }
 }
+
 @Composable
 fun FriendRequestItem(
     request: FriendRequest,
@@ -112,7 +127,6 @@ fun FriendRequestItem(
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // applicant avatar
         Image(
             painter = painterResource(id = request.avatarResId),
             contentDescription = "user avatar",
@@ -123,9 +137,6 @@ fun FriendRequestItem(
             contentScale = ContentScale.Crop
         )
 
-
-
-        // event name
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -146,7 +157,6 @@ fun FriendRequestItem(
             }
         }
 
-        // 操作按钮
         Button(
             onClick = onAccept,
             colors = ButtonDefaults.buttonColors(
@@ -154,14 +164,11 @@ fun FriendRequestItem(
             ),
             modifier = Modifier
                 .padding(end = 8.dp)
-                .height(30.dp)  //
-                .width(40.dp),  //
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp) // 减小内部填充
+                .height(30.dp)
+                .width(40.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
         ) {
-            Text(
-                "✓",
-                fontSize = 14.sp //
-            )
+            Text("✓", fontSize = 14.sp)
         }
 
         Button(
@@ -173,12 +180,9 @@ fun FriendRequestItem(
             modifier = Modifier
                 .height(30.dp)
                 .width(40.dp),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp) // 减小内部填充
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
         ) {
-            Text(
-                "✕",
-                fontSize = 12.sp //
-            )
+            Text("✕", fontSize = 12.sp)
         }
     }
 }
