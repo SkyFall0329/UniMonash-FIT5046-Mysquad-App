@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "83325044758",
+    "project_id": "mysqud-kotlin",
+    "storage_bucket": "mysqud-kotlin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:83325044758:android:44c6809c9fc3aff12e4d37",
+        "android_client_info": {
+          "package_name": "com.example.mysquad"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKI7qQSXf-dck3vbiP-2o3sveI3zMAsQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

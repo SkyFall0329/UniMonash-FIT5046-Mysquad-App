@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
+    id("kotlin-kapt")
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -48,6 +50,8 @@ dependencies {
     implementation(libs.firebase.analytics)
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
+    implementation(libs.play.services.auth.v2110)
+    implementation (libs.play.services.auth)
     implementation(libs.google.firebase.auth)
     implementation(libs.androidx.credentials)
     implementation(libs.firebase.crashlytics)

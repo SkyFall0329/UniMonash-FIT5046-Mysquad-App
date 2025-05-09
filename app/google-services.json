@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "83325044758",
+    "project_id": "mysqud-kotlin",
+    "storage_bucket": "mysqud-kotlin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:83325044758:android:44c6809c9fc3aff12e4d37",
+        "android_client_info": {
+          "package_name": "com.example.mysquad"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "83325044758-i90cpfgltn3d7ehhpmul862sgo0a3v6k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mysquad",
+            "certificate_hash": "56b716dd36d4b27b00c72f0b11754f56dfd694f3"
+          }
+        },
+        {
+          "client_id": "83325044758-r7qj47gpc55h8q5tcqi1sghtrl6eoo6m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKI7qQSXf-dck3vbiP-2o3sveI3zMAsQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "83325044758-r7qj47gpc55h8q5tcqi1sghtrl6eoo6m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
