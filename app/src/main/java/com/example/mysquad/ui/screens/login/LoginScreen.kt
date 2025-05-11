@@ -1,6 +1,11 @@
 package com.example.mysquad.ui.screens.login
 
+import android.app.Activity.RESULT_OK
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
@@ -62,177 +67,255 @@ import androidx.compose.ui.unit.dp
 import com.example.mysquad.R
 import com.example.mysquad.ui.theme.ThemeMode
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.mysquad.firebase.AuthUiState
+import com.example.mysquad.firebase.AuthViewModel
+import com.example.mysquad.navigation.Screen
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun LoginScreenWithAnimation(
-    onLoginClick: () -> Unit = {},
-    onGoogleSignInClick: () -> Unit = {},
-    onForgotPasswordClick: () -> Unit = {},
-    onSignUpClick: () -> Unit = {},
-    onThemeChange: (ThemeMode) -> Unit
+    navController: NavController,
+    onThemeChange: (ThemeMode) -> Unit,
+    viewModel: AuthViewModel = viewModel()
 ) {
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val visibleState = remember { MutableTransitionState(false).apply { targetState = true } }
+    val uiState = viewModel.uiState
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val oneTapClient = remember { Identity.getSignInClient(context) }
 
-    val themeOptions = listOf("Light", "System", "Dark")
-    val themeIcons = listOf(Icons.Default.WbSunny, Icons.Default.Settings, Icons.Default.DarkMode)
-    var selectedIndex by remember { mutableIntStateOf(1) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            GradientArtText1()
-            Spacer(modifier = Modifier.height(8.dp))
-            AnimatedVisibility(
-                visibleState = visibleState,
-                enter = fadeIn(tween(1000)) + scaleIn(initialScale = 0.6f, animationSpec = tween(1000)),
-                exit = fadeOut()
-            ) {
-                GradientArtText2()
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = email.value,
-                onValueChange = { email.value = it },
-                label = { Text("Email") },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.Email, contentDescription = "Email Icon")
-                },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            var passwordVisible by remember { mutableStateOf(false) }
-
-            OutlinedTextField(
-                value = password.value,
-                onValueChange = { password.value = it },
-                label = { Text("Password") },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.VpnKey, contentDescription = "Password Icon")
-                },
-                singleLine = true,
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = null)
+    // Google Sign-In launcher
+    val googleLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val credentials = oneTapClient.getSignInCredentialFromIntent(result.data)
+            val idToken = credentials.googleIdToken
+            if (idToken != null) {
+                coroutineScope.launch {
+                    try {
+                        viewModel.signInWithGoogle(idToken)
+                        navController.navigate(Screen.Main.route) {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    } catch (e: Exception) {
+                        snackbarHostState.showSnackbar("Google sign-in failed: ${e.message}")
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = onLoginClick,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text("Login", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedButton(
-                onClick = onGoogleSignInClick,
-                border = BorderStroke(1.dp, Color(0xFF4285F4)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_google),
-                    contentDescription = "Google Sign-In",
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Sign in with Google", color = Color(0xFF4285F4),fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                TextButton(onClick = onForgotPasswordClick) {
-                    Text("Forgot Password?", fontSize = 15.sp)
-                }
-                TextButton(onClick = onSignUpClick) {
-                    Text("Sign Up", fontSize = 15.sp)
                 }
             }
         }
+    }
 
-        Row(
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is AuthUiState.Error -> snackbarHostState.showSnackbar(uiState.message)
+            is AuthUiState.Success -> navController.navigate(Screen.Main.route) {
+                popUpTo("login") { inclusive = true }
+            }
+            else -> {}
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Box(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp), // ✅ 控制间距
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            themeOptions.forEachIndexed { index, label ->
-                val isSelected = selectedIndex == index
-                val bgColor by animateColorAsState(
-                    targetValue = if (isSelected) Color(0xFF1565C0) else Color.Transparent,
-                    animationSpec = tween(durationMillis = 300)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(padding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                GradientArtText1()
+                Spacer(modifier = Modifier.height(8.dp))
+                AnimatedVisibility(
+                    visibleState = visibleState,
+                    enter = fadeIn(tween(1000)) + scaleIn(initialScale = 0.6f, animationSpec = tween(1000)),
+                    exit = fadeOut()
+                ) {
+                    GradientArtText2()
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = email.value,
+                    onValueChange = { email.value = it },
+                    label = { Text("Email") },
+                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email Icon") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
-                val contentColor = if (isSelected) Color.White else Color.Gray
-                val borderColor = if (isSelected) Color(0xFF1565C0) else Color.Gray
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                var passwordVisible by remember { mutableStateOf(false) }
+
+                OutlinedTextField(
+                    value = password.value,
+                    onValueChange = { password.value = it },
+                    label = { Text("Password") },
+                    leadingIcon = { Icon(Icons.Default.VpnKey, contentDescription = "Password Icon") },
+                    singleLine = true,
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(icon, contentDescription = null)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.login(email.value.trim(), password.value)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+                    Text("Login", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedButton(
                     onClick = {
-                        selectedIndex = index
-                        onThemeChange(
-                            when (label) {
-                                "Light" -> ThemeMode.LIGHT
-                                "Dark" -> ThemeMode.DARK
-                                else -> ThemeMode.SYSTEM
+                        coroutineScope.launch {
+                            try {
+                                val result = oneTapClient.beginSignIn(
+                                    BeginSignInRequest.builder()
+                                        .setGoogleIdTokenRequestOptions(
+                                            BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                                                .setSupported(true)
+                                                .setServerClientId("83325044758-i90cpfgltn3d7ehhpmul862sgo0a3v6k.apps.googleusercontent.com")
+                                                .setFilterByAuthorizedAccounts(false)
+                                                .build()
+                                        )
+                                        .build()
+                                ).await()
+
+                                googleLauncher.launch(
+                                    IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
+                                )
+                            } catch (e: Exception) {
+                                snackbarHostState.showSnackbar("Google Sign-in error: ${e.message}")
                             }
-                        )
+                        }
                     },
+                    border = BorderStroke(1.dp, Color(0xFF4285F4)),
                     modifier = Modifier
-                        .size(52.dp)
-                        .shadow(
-                            elevation = if (isSelected) 6.dp else 0.dp,
-                            shape = CircleShape,
-                            clip = false
-                        ),
-                    shape = CircleShape,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = bgColor,
-                        contentColor = contentColor
-                    ),
-                    border = BorderStroke(1.dp, borderColor),
-                    contentPadding = PaddingValues(0.dp)
+                        .fillMaxWidth()
+                        .height(50.dp)
                 ) {
-                    Icon(imageVector = themeIcons[index], contentDescription = label, tint = contentColor)
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_google),
+                        contentDescription = "Google Sign-In",
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Sign in with Google", color = Color(0xFF4285F4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(onClick = { navController.navigate(Screen.ForgotPassword.route)}) {
+                        Text("Forgot Password?", fontSize = 15.sp)
+                    }
+                    TextButton(onClick = { navController.navigate(Screen.RegisterEmail.route) }) {
+                        Text("Sign Up", fontSize = 15.sp)
+                    }
+                }
+            }
+
+            // Theme selector at bottom
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val themeOptions = listOf("Light", "System", "Dark")
+                val themeIcons = listOf(Icons.Default.WbSunny, Icons.Default.Settings, Icons.Default.DarkMode)
+                var selectedIndex by remember { mutableIntStateOf(1) }
+
+                themeOptions.forEachIndexed { index, label ->
+                    val isSelected = selectedIndex == index
+                    val bgColor by animateColorAsState(
+                        targetValue = if (isSelected) Color(0xFF1565C0) else Color.Transparent,
+                        animationSpec = tween(300)
+                    )
+                    val contentColor = if (isSelected) Color.White else Color.Gray
+                    val borderColor = if (isSelected) Color(0xFF1565C0) else Color.Gray
+
+                    OutlinedButton(
+                        onClick = {
+                            selectedIndex = index
+                            onThemeChange(
+                                when (label) {
+                                    "Light" -> ThemeMode.LIGHT
+                                    "Dark" -> ThemeMode.DARK
+                                    else -> ThemeMode.SYSTEM
+                                }
+                            )
+                        },
+                        modifier = Modifier
+                            .size(52.dp)
+                            .shadow(
+                                elevation = if (isSelected) 6.dp else 0.dp,
+                                shape = CircleShape,
+                                clip = false
+                            ),
+                        shape = CircleShape,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = bgColor,
+                            contentColor = contentColor
+                        ),
+                        border = BorderStroke(1.dp, borderColor),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Icon(imageVector = themeIcons[index], contentDescription = label, tint = contentColor)
+                    }
                 }
             }
         }
@@ -356,7 +439,7 @@ fun GradientArtText1() {
             fontWeight = FontWeight.Bold,
             brush = Brush.linearGradient(
                 colors = listOf(
-                        Color(0xFF42A5F5), // blue
+                    Color(0xFF42A5F5), // blue
                     Color(0xFF64B5F6), // light blue
                     Color(0xFFBA68C8), // lavender-ish
                     Color(0xFF7E57C2)  // purple

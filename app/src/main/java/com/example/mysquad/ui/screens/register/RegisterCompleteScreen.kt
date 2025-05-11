@@ -40,7 +40,10 @@ import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.ui.text.font.FontWeight
 
 @Composable
-fun RegisterCompleteScreen(onRegisterDone: () -> Unit) {
+fun RegisterCompleteScreen(
+    modifier: Modifier = Modifier,
+    onRegisterDone: (username: String, password: String) -> Unit
+) {
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val confirmPassword = remember { mutableStateOf("") }
@@ -133,7 +136,7 @@ fun RegisterCompleteScreen(onRegisterDone: () -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = onRegisterDone,
+            onClick = {onRegisterDone(username.value.trim(),password.value)},
             enabled = username.value.isNotBlank() && passwordValid && passwordsMatch,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0))

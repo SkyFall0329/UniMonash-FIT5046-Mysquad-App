@@ -25,6 +25,10 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun RegisterEmailScreen(onNext: (String) -> Unit) {
     val email = remember { mutableStateOf("") }
+    // email verification
+    val isValidEmail = remember(email.value) {
+        android.util.Patterns.EMAIL_ADDRESS.matcher(email.value).matches()
+    }
 
     Column(
         modifier = Modifier
@@ -40,6 +44,15 @@ fun RegisterEmailScreen(onNext: (String) -> Unit) {
             value = email.value,
             onValueChange = { email.value = it },
             label = { Text("Email Address") },
+            isError = email.value.isNotBlank() && !isValidEmail,
+            supportingText = {
+                if (email.value.isNotBlank() && !isValidEmail) {
+                    Text(
+                        text = "Invalid email format",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -48,7 +61,7 @@ fun RegisterEmailScreen(onNext: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0))
         ) {
-            Text("Send Verification Code", color = Color.White)
+            Text("Go to Next Step", color = Color.White)
         }
     }
 }

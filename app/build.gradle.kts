@@ -2,6 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
+    id("kotlin-kapt")
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -40,7 +44,25 @@ android {
 }
 
 dependencies {
-
+    // Import the Firebase BoM
+    implementation(platform(libs.firebase.bom))
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation(libs.firebase.analytics)
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+    implementation(libs.play.services.auth.v2110)
+    implementation(libs.firebase.firestore)
+    implementation (libs.firebase.firestore.ktx)
+    implementation (libs.firebase.firestore.ktx.v2451)
+    implementation (libs.play.services.auth)
+    implementation(libs.google.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.google.firebase.analytics)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.firebase.auth)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
