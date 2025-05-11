@@ -85,8 +85,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mysquad.firebase.AuthUiState
 import com.example.mysquad.firebase.AuthViewModel
+import com.example.mysquad.navigation.Screen
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -117,7 +119,7 @@ fun LoginScreenWithAnimation(
                 coroutineScope.launch {
                     try {
                         viewModel.signInWithGoogle(idToken)
-                        navController.navigate("home") {
+                        navController.navigate(Screen.Main.route) {
                             popUpTo("login") { inclusive = true }
                         }
                     } catch (e: Exception) {
@@ -131,7 +133,7 @@ fun LoginScreenWithAnimation(
     LaunchedEffect(uiState) {
         when (uiState) {
             is AuthUiState.Error -> snackbarHostState.showSnackbar(uiState.message)
-            is AuthUiState.Success -> navController.navigate("home") {
+            is AuthUiState.Success -> navController.navigate(Screen.Main.route) {
                 popUpTo("login") { inclusive = true }
             }
             else -> {}
@@ -256,10 +258,10 @@ fun LoginScreenWithAnimation(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    TextButton(onClick = { navController.navigate("forgotPassword") }) {
+                    TextButton(onClick = { navController.navigate(Screen.ForgotPassword.route)}) {
                         Text("Forgot Password?", fontSize = 15.sp)
                     }
-                    TextButton(onClick = { navController.navigate("register") }) {
+                    TextButton(onClick = { navController.navigate(Screen.RegisterEmail.route) }) {
                         Text("Sign Up", fontSize = 15.sp)
                     }
                 }

@@ -21,7 +21,14 @@ class AuthViewModel(
     var uiState: AuthUiState by mutableStateOf(AuthUiState.Idle)
         private set
 
-    fun signUp(email: String, pwd: String) = launch { repo.signUp(email, pwd) }
+    var tempEmail: String = ""
+        private set
+
+    fun setTempEmail(email: String) {
+        tempEmail = email
+    }
+
+    fun register(email:String,pwd:String,username:String) = launch { repo.signUp(email, pwd,username) }
     fun login(email: String, pwd: String) = launch { repo.login(email, pwd) }
     fun resetPassword(email: String) = launch { repo.resetPassword(email) }
     fun  signInWithGoogle(idToken: String) = launch { repo.signInWithGoogle(idToken) }
