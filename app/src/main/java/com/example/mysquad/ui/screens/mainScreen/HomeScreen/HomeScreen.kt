@@ -1,5 +1,12 @@
 package com.example.mysquad.ui.screens.mainScreen.HomeScreen
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
+import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -9,7 +16,6 @@ import androidx.compose.ui.Modifier
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,22 +29,72 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import com.example.mysquad.ViewModel.WeatherViewModel
 import com.example.mysquad.entity.larry.Activity
+import com.google.android.gms.location.LocationServices
+
+
+@SuppressLint("MissingPermission")
+fun getCurrentLocation(context: Context, onLocationReceived: (Location) -> Unit) {
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    val locationRequest = com.google.android.gms.location.LocationRequest
+        .create()
+        .setPriority(com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY)
+        .setInterval(1000)
+        .setNumUpdates(1) // ✅ 只请求一次
+
+    fusedLocationClient.requestLocationUpdates(
+        locationRequest,
+        object : com.google.android.gms.location.LocationCallback() {
+            override fun onLocationResult(result: com.google.android.gms.location.LocationResult) {
+                val location = result.lastLocation
+                if (location != null) {
+                    Log.d("LocationDebug", "Real-time Location: ${location.latitude}, ${location.longitude}")
+                    onLocationReceived(location)
+                } else {
+                    Log.w("LocationDebug", "Real-time location is null.")
+                }
+
+                // ✅ 结束监听（只用一次）
+                fusedLocationClient.removeLocationUpdates(this)
+            }
+        },
+        Looper.getMainLooper()
+    )
+}
+
 
 @Composable
 fun HomeScreen() {
+    val viewModel: WeatherViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val context = LocalContext.current
+    LaunchedEffect(true) {
+        getCurrentLocation(context) {
+            Log.d("Location", "Lat: ${it.latitude}, Lon: ${it.longitude}")
+            viewModel.fetchWeather(it.latitude, it.longitude)
+        }
+    }
+    val weather = viewModel.weatherState
+    val temperature = weather?.temperature?.degrees?.toString()?.plus("°C") ?: "..."
+    val condition = weather?.weatherCondition?.description?.text ?: "Loading..."
+    val feelsLike = weather?.feelsLikeTemperature?.degrees?.toInt()?.toString()?.plus("°C") ?: "..."
+
+
+
     val sampleActivities: List<Activity> = listOf(
         Activity("Basketball Training", "2025-04-16 17:30", isHost = true),
         Activity("Morning Run Group", "2025-04-17 06:45", isHost = false),
         Activity("Yoga Relaxation", "2025-04-18 10:00", isHost = true)
     )
 
-    val temperature = "22°C"
-    val weatherType = "Clear"
     val hasActivities = sampleActivities.isNotEmpty()
 
     Column(
@@ -61,7 +117,8 @@ fun HomeScreen() {
         // 🌤 Weather Display
         WeatherCard(
             temperature = temperature,
-            weatherType = weatherType
+            feelsLike = feelsLike,
+            condition = condition
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -175,29 +232,30 @@ fun ActivityCard(activity: Activity, index: Int) {
 @Composable
 fun WeatherCard(
     temperature: String,
-    weatherType: String
+    feelsLike: String,
+    condition: String
 ) {
-    val weatherIcon = when (weatherType.lowercase()) {
-        "clear" -> Icons.Default.WbSunny
-        "clouds" -> Icons.Default.Cloud
-        "rain" -> Icons.Default.Umbrella
-        "snow" -> Icons.Default.AcUnit
+    val conditionLower = condition.lowercase()
+
+    val weatherIcon = when {
+        "clear" in conditionLower -> Icons.Default.WbSunny
+        "cloud" in conditionLower -> Icons.Default.Cloud
+        "rain" in conditionLower -> Icons.Default.Umbrella
+        "snow" in conditionLower -> Icons.Default.AcUnit
         else -> Icons.Default.WbCloudy
     }
 
-    val weatherColor = when (weatherType.lowercase()) {
-        "clear" -> Color(0xFFFFA726)     // Orange
-        "clouds" -> Color(0xFF90A4AE)    // Light Gray-Blue
-        "rain" -> Color(0xFF4FC3F7)      // Sky Blue
-        "snow" -> Color(0xFF90CAF9)      // Cold Blue
+    val weatherColor = when {
+        "clear" in conditionLower -> Color(0xFFFFA726)
+        "cloud" in conditionLower -> Color(0xFF90A4AE)
+        "rain" in conditionLower -> Color(0xFF4FC3F7)
+        "snow" in conditionLower -> Color(0xFF90CAF9)
         else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
     }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -212,23 +270,27 @@ fun WeatherCard(
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
+                Row {
+                    Text(
+                        text = "Temperature: $temperature",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Feels like: $feelsLike",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
                 Text(
-                    text = "Temperature: $temperature",
+                    text = condition,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = when (weatherType.lowercase()) {
-                        "clear" -> "Sunny ☀️"
-                        "clouds" -> "Cloudy ☁️"
-                        "rain" -> "Raining 🌧"
-                        "snow" -> "Snowing ❄️"
-                        else -> "Unknown 🌫"
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
     }
 }
+
+
