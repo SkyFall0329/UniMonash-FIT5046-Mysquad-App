@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.example.mysquad.ViewModel.WeatherViewModel
@@ -72,6 +73,7 @@ fun getCurrentLocation(context: Context, onLocationReceived: (Location) -> Unit)
 }
 
 
+@Preview
 @Composable
 fun HomeScreen() {
     val viewModel: WeatherViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
