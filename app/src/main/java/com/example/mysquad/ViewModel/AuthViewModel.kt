@@ -1,10 +1,11 @@
-package com.example.mysquad.firebase
+package com.example.mysquad.ViewModel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mysquad.firebase.AuthRepository
 import kotlinx.coroutines.launch
 
 sealed interface AuthUiState {
@@ -32,11 +33,18 @@ class AuthViewModel(
     fun login(email: String, pwd: String) = launch { repo.login(email, pwd) }
     fun resetPassword(email: String) = launch { repo.resetPassword(email) }
     fun  signInWithGoogle(idToken: String) = launch { repo.signInWithGoogle(idToken) }
+    fun signOut() {
+        repo.signOut()
+        uiState = AuthUiState.Idle
+    }
 
     private fun launch(block: suspend () -> Unit) = viewModelScope.launch {
         uiState = AuthUiState.Loading
         runCatching { block() }
             .onSuccess { uiState = AuthUiState.Success }
             .onFailure { uiState = AuthUiState.Error(it.message ?: "Unknown error") }
+    }
+    internal fun resetUiState() {
+        uiState = AuthUiState.Idle
     }
 }

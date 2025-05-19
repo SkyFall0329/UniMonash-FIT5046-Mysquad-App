@@ -1,8 +1,13 @@
 package com.example.mysquad.firebase
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class AuthRepository(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
@@ -14,7 +19,7 @@ class AuthRepository(
 
 
     /** Create the Auth user and writes their username into Firestore **/
-    suspend fun signUp(email: String, password: String,username: String) {
+    suspend fun signUp(email: String, password: String, username: String) {
         try {
             auth.createUserWithEmailAndPassword(email, password).await()
             val user = auth.currentUser ?: throw IllegalStateException("User is null after sign-up")
@@ -34,7 +39,20 @@ class AuthRepository(
     }
 
     suspend fun resetPassword(email: String) {
-        auth.sendPasswordResetEmail(email).await()
+        return suspendCoroutine { continuation ->
+            auth.sendPasswordResetEmail(email)
+                .addOnSuccessListener {
+                    continuation.resume(Unit)
+                }
+                .addOnFailureListener { exception ->
+                    val errorMsg = when (exception) {
+                        is FirebaseAuthInvalidUserException -> "This email is not registered."
+                        is FirebaseAuthInvalidCredentialsException -> "Invalid email format."
+                        else -> exception.localizedMessage ?: "Failed to send reset email."
+                    }
+                    continuation.resumeWithException(Exception(errorMsg))
+                }
+        }
     }
 
     suspend fun signInWithGoogle(idToken: String) {
@@ -45,7 +63,7 @@ class AuthRepository(
             val user = auth.currentUser!!
             val uid = user.uid
             val email = user.email ?: ""
-            val username  = user.displayName ?: ""
+            val username = user.displayName ?: ""
             userRepo.createUserProfile(uid, username, email)
         }
     }

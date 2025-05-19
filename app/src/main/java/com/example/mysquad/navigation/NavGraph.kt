@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.mysquad.firebase.AuthUiState
-import com.example.mysquad.firebase.AuthViewModel
+import com.example.mysquad.ViewModel.AuthUiState
+import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.ui.screens.forgotpassword.ForgotEmailScreen
 import com.example.mysquad.ui.screens.forgotpassword.ForgotResetPasswordScreen
 import com.example.mysquad.ui.screens.forgotpassword.ForgotVerifyScreen
@@ -92,9 +92,10 @@ fun AppNavGraph(
         }
         /** ---------- FORGOT-PASSWORD FLOW ---------- **/
         composable(Screen.ForgotPassword.route) {
-            ForgotEmailScreen {
-                navController.navigate(Screen.ForgotPasswordVerify.route)
-            }
+            ForgotEmailScreen(
+                navController = navController,
+                viewModel = authViewModel
+            )
         }
 
         composable(Screen.ForgotPasswordVerify.route) {
@@ -113,7 +114,12 @@ fun AppNavGraph(
             }
         }
         composable(Screen.Main.route) {
-            MainScreen()
+            MainScreen(
+                navController = navController, // 👈 传入上层的 navController
+                authViewModel = authViewModel,
+                onThemeChange = onThemeChange
+
+            )
         }
     }
 }

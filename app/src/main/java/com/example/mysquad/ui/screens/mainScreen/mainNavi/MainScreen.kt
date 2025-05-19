@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.entity.jianhui.local.LocalEvent
 import com.example.mysquad.entity.jianhui.local.LocalUser
 import com.example.mysquad.navigation.Screen
@@ -26,17 +29,35 @@ import com.example.mysquad.ui.screens.mainScreen.TodoScreen.RequestsList
 import com.example.mysquad.ui.screens.mainScreen.TodoScreen.TodoScreen
 import com.example.mysquad.ui.screens.mainScreen.TodoScreen.UserProfile
 import com.example.mysquad.entity.larry.UserProfile
+import com.example.mysquad.ui.screens.login.LoginScreenWithAnimation
+import com.example.mysquad.ui.theme.ThemeMode
+
+
+
+
 
 @RequiresApi(64)
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    navController: NavHostController,
+    onThemeChange: (ThemeMode) -> Unit,
+    authViewModel: AuthViewModel
+) {
     val navController = rememberNavController()
     val items = BottomBarItem.items
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val showBottomBar = currentRoute in listOf(
+        Screen.HomeScreen.route,
+        Screen.SquareScreen.route,
+        Screen.TodoScreen.route,
+        Screen.ProfileScreen.route,
+        Screen.AddScreen.route,
+        Screen.Main.route)
     Scaffold(
         bottomBar = {
+
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 4.dp
@@ -150,7 +171,16 @@ fun MainScreen() {
                     birthday = "1998-06-15",
                     favoriteSports = "Basketball, Running, Yoga",
                     bio = "Hi! I'm passionate about tech and fitness. I enjoy coding and leading group workouts!"
+                ),
+                    viewModel = authViewModel,
+                    navController = navController
                 )
+            }
+            composable(Screen.Login.route){
+                LoginScreenWithAnimation(
+                    navController = navController,
+                    viewModel = authViewModel,
+                    onThemeChange = onThemeChange
                 )
             }
         }

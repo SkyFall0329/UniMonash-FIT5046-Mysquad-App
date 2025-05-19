@@ -26,13 +26,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.componets.larry.DisplayDatePicker
 
 import com.example.mysquad.entity.larry.UserProfile
+import com.example.mysquad.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(currentUser: UserProfile) {
+fun ProfileScreen(currentUser: UserProfile,
+                  viewModel: AuthViewModel,
+                  navController: NavController) {
     var isEditing by remember { mutableStateOf(false) }
 
     var faculty by remember { mutableStateOf(currentUser.faculty) }
@@ -51,24 +57,37 @@ fun ProfileScreen(currentUser: UserProfile) {
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    text = "My Profile",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            navigationIcon = {
+                TextButton(onClick = { isEditing = !isEditing }) {
                     Text(
-                        text = "My Profile",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold
+                        text = if (isEditing) "Save" else "Edit",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
                     )
-                },
-                actions = {
-                    TextButton(onClick = { isEditing = !isEditing }) {
-                        Text(
-                            text = if (isEditing) "Save" else "Edit",
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
                 }
-            )
-        }
+            },
+            actions = {
+                TextButton(onClick = {
+                    viewModel.signOut()
+                    navController.navigate(Screen.Login.route)
+                }) {
+                    Text(
+                        text = "Log Out",
+                        color = Color.Red,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        )
+    }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -178,8 +197,10 @@ fun ProfileScreen(currentUser: UserProfile) {
                         }
                     }
                 }
+
             }
         }
+
     }
 }
 

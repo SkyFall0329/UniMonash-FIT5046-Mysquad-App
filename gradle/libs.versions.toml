@@ -21,6 +21,7 @@ navigationCompose = "2.9.0"
 googleFirebaseCrashlytics = "3.0.3"
 playServicesAuth = "21.3.0"
 playServicesLocation = "21.3.0"
+playServicesLocationVersion = "21.0.1"
 retrofit = "2.9.0"
 
 [libraries]
@@ -59,6 +60,7 @@ material3 = { module = "androidx.compose.material3:material3", version.ref = "ma
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 play-services-auth-v2110 = { module = "com.google.android.gms:play-services-auth", version.ref = "googlePlayServicesAuth" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-location-v2101 = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocationVersion" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 
 [plugins]

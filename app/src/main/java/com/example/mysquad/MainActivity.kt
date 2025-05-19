@@ -13,7 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.mysquad.firebase.AuthViewModel
+import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.navigation.AppNavGraph
 import com.example.mysquad.ui.theme.MySquadTheme
 import com.example.mysquad.ui.theme.ThemeMode

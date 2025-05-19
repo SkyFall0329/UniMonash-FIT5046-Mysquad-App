@@ -83,12 +83,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.mysquad.firebase.AuthUiState
-import com.example.mysquad.firebase.AuthViewModel
+import com.example.mysquad.ViewModel.AuthUiState
+import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.navigation.Screen
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
