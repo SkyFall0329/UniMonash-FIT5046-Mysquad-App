@@ -14,7 +14,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -39,13 +38,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.mysquad.entity.jianhui.Event
-import com.example.mysquad.entity.jianhui.User
+import com.example.mysquad.data.entityForTesting.jianhui.Event
+import com.example.mysquad.data.entityForTesting.jianhui.User
 import com.example.mysquad.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventDetailScreen(event: Event, currentUser: User, onNavigateBack: () -> Unit,navController: NavHostController,) {
+fun EventDetailScreen(event: Event, currentUser: User, onNavigateBack: () -> Unit, navController: NavHostController,) {
     val isHost = event.eventHost == currentUser
     val isParticipantOrApplicant = event.eventParticipants.contains(currentUser) || event.eventApplicant.contains(currentUser)
     var showCancelDialog by remember { mutableStateOf(false) }

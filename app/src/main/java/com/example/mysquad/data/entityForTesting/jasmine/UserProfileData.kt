@@ -1,4 +1,4 @@
-package com.example.mysquad.entity.jasmine
+package com.example.mysquad.data.entityForTesting.jasmine
 
 data class UserProfileData(
     val name: String,

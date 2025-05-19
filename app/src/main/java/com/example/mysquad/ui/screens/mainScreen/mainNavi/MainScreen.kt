@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,8 +15,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.mysquad.ViewModel.AuthViewModel
-import com.example.mysquad.entity.jianhui.local.LocalEvent
-import com.example.mysquad.entity.jianhui.local.LocalUser
+import com.example.mysquad.data.entityForTesting.jianhui.local.LocalEvent
+import com.example.mysquad.data.entityForTesting.jianhui.local.LocalUser
 import com.example.mysquad.navigation.Screen
 import com.example.mysquad.ui.screens.mainScreen.AddScreen.AddScreen
 import com.example.mysquad.ui.screens.mainScreen.HomeScreen.HomeScreen
@@ -28,18 +27,15 @@ import com.example.mysquad.ui.screens.mainScreen.TodoScreen.EventDetailScreen
 import com.example.mysquad.ui.screens.mainScreen.TodoScreen.RequestsList
 import com.example.mysquad.ui.screens.mainScreen.TodoScreen.TodoScreen
 import com.example.mysquad.ui.screens.mainScreen.TodoScreen.UserProfile
-import com.example.mysquad.entity.larry.UserProfile
+import com.example.mysquad.data.entityForTesting.larry.UserProfile
+import com.example.mysquad.navigation.BottomBarItem
 import com.example.mysquad.ui.screens.login.LoginScreenWithAnimation
 import com.example.mysquad.ui.theme.ThemeMode
-
-
-
-
 
 @RequiresApi(64)
 @Composable
 fun MainScreen(
-    navController: NavHostController,
+    rootNavController: NavHostController,
     onThemeChange: (ThemeMode) -> Unit,
     authViewModel: AuthViewModel
 ) {
@@ -48,16 +44,8 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val showBottomBar = currentRoute in listOf(
-        Screen.HomeScreen.route,
-        Screen.SquareScreen.route,
-        Screen.TodoScreen.route,
-        Screen.ProfileScreen.route,
-        Screen.AddScreen.route,
-        Screen.Main.route)
     Scaffold(
         bottomBar = {
-
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 4.dp
@@ -68,22 +56,15 @@ fun MainScreen(
                     NavigationBarItem(
                         selected = isSelected,
                         onClick = {
-                            if (currentRoute != item.route && item.route.isNotBlank()) {
+                            if (!isSelected && item.route.isNotBlank()) {
                                 navController.navigate(item.route) {
-                                    popUpTo(BottomBarItem.Home.route) {
-                                        saveState = true
-                                    }
+                                    popUpTo(BottomBarItem.Home.route) { saveState = true }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
                             }
                         },
-                        icon = {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.label
-                            )
-                        },
+                        icon = { Icon(item.icon, contentDescription = item.label) },
                         label = {
                             if (item.label.isNotEmpty()) {
                                 Text(
@@ -97,13 +78,12 @@ fun MainScreen(
                             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             selectedTextColor = MaterialTheme.colorScheme.primary,
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            indicatorColor = Color.Transparent // 💥 关键！取消底色圆圈
+                            indicatorColor = Color.Transparent
                         )
                     )
                 }
             }
         }
-
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -112,7 +92,9 @@ fun MainScreen(
         ) {
             composable(BottomBarItem.Home.route) { HomeScreen() }
             composable(BottomBarItem.Square.route) { SquareScreen(navController) }
-            composable(Screen.PostDetail.route) {  GetPostDetail(onBackClick = { navController.popBackStack() }) }
+            composable(Screen.PostDetail.route) {
+                GetPostDetail(onBackClick = { navController.popBackStack() })
+            }
             composable(BottomBarItem.Add.route) { AddScreen() }
             composable(Screen.TodoScreen.route) {
                 TodoScreen(
@@ -127,7 +109,6 @@ fun MainScreen(
                 arguments = listOf(navArgument("eventId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val eventId = backStackEntry.arguments?.getInt("eventId") ?: return@composable
-
                 val event = LocalEvent.events.find { it.eventID == eventId }
                 val currentUser = LocalUser.user1
 
@@ -136,15 +117,13 @@ fun MainScreen(
                         event = event,
                         currentUser = currentUser,
                         onNavigateBack = { navController.popBackStack() },
-                        navController = navController,
+                        navController = navController
                     )
                 }
             }
             composable(Screen.RequestsList.route) {
                 RequestsList(
-                    onAvatarClick = { userId ->
-                        // navController.navigate(Screen.UserProfile.createRoute(userId))
-                    },
+                    onAvatarClick = { /* TODO */ },
                     navController = navController
                 )
             }
@@ -155,30 +134,29 @@ fun MainScreen(
                 val userId = backStackEntry.arguments?.getString("userId") ?: "unknown"
                 UserProfile(
                     userId = userId,
-                    onBackClick = {
-                        navController.popBackStack()
-                    }
+                    onBackClick = { navController.popBackStack() }
                 )
             }
             composable(Screen.ProfileScreen.route) {
-                ProfileScreen(currentUser = UserProfile(
-                    userID = "35195967",
-                    userName = "Letao Wang",
-                    gender = "Male",
-                    userEmail = "letao.wang@student.monash.edu",
-                    faculty = "Faculty of Information Technology",
-                    degree = "Master",
-                    birthday = "1998-06-15",
-                    favoriteSports = "Basketball, Running, Yoga",
-                    bio = "Hi! I'm passionate about tech and fitness. I enjoy coding and leading group workouts!"
-                ),
+                ProfileScreen(
+                    currentUser = UserProfile(
+                        userID = "35195967",
+                        userName = "Letao Wang",
+                        gender = "Male",
+                        userEmail = "letao.wang@student.monash.edu",
+                        faculty = "Faculty of Information Technology",
+                        degree = "Master",
+                        birthday = "1998-06-15",
+                        favoriteSports = "Basketball, Running, Yoga",
+                        bio = "Hi! I'm passionate about tech and fitness. I enjoy coding and leading group workouts!"
+                    ),
                     viewModel = authViewModel,
                     navController = navController
                 )
             }
-            composable(Screen.Login.route){
+            composable(Screen.Auth.route) {
                 LoginScreenWithAnimation(
-                    navController = navController,
+                    navController = rootNavController,
                     viewModel = authViewModel,
                     onThemeChange = onThemeChange
                 )

@@ -26,12 +26,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.componets.larry.DisplayDatePicker
 
-import com.example.mysquad.entity.larry.UserProfile
+import com.example.mysquad.data.entityForTesting.larry.UserProfile
 import com.example.mysquad.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,7 +76,9 @@ fun ProfileScreen(currentUser: UserProfile,
             actions = {
                 TextButton(onClick = {
                     viewModel.signOut()
-                    navController.navigate(Screen.Login.route)
+                    navController.navigate(Screen.Auth.route) {
+                        popUpTo(0)
+                    }
                 }) {
                     Text(
                         text = "Log Out",

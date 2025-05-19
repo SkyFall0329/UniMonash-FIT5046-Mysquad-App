@@ -1,4 +1,4 @@
-package com.example.mysquad.entity.larry
+package com.example.mysquad.data.entityForTesting.larry
 
 data class Activity(
     val title: String,

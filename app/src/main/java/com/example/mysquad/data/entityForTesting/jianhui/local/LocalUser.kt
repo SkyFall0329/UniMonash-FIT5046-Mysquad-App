@@ -1,6 +1,6 @@
-package com.example.mysquad.entity.jianhui.local
+package com.example.mysquad.data.entityForTesting.jianhui.local
 
-import com.example.mysquad.entity.jianhui.User
+import com.example.mysquad.data.entityForTesting.jianhui.User
 
 object LocalUser {
     val user1 = User("jane.doe@unimelb.edu.au", "JaneD")

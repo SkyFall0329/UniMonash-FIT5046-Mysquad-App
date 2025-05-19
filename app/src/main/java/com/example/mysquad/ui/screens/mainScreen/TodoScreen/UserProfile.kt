@@ -1,5 +1,6 @@
 package com.example.mysquad.ui.screens.mainScreen.TodoScreen
 
+import android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.mysquad.entity.jasmine.UserProfileData
+import com.example.mysquad.data.entityForTesting.jasmine.UserProfileData
 
 
 @Composable
@@ -42,14 +42,14 @@ fun UserProfile(userId: String, onBackClick: () -> Unit) {
                 birthday = "1998-06-12",
                 favoriteSports = "Basketball",
                 bio = "I enjoy playing basketball very much!You can email me to AshelyZhu@student.monash.edu",
-                avatarRes = android.R.drawable.ic_menu_camera
+                avatarRes = R.drawable.ic_menu_camera
             )
-            "2" -> UserProfileData("James Ling", "Male", "Arts", "Bachelor of Music", "2001-09-05", "Dance", "I enjoy popping dance and bbox.", android.R.drawable.ic_menu_camera)
-            "3" -> UserProfileData("Jasmine", "Female", "Science", "Bachelor of Science", "2000-02-28", "Swimming", "I enjoy swimming!", android.R.drawable.ic_menu_camera)
-            "4" -> UserProfileData("Leta Zhang", "Male", "Engineering", "Master of Civil Engineering", "1997-12-08", "All kinds of sports", "I like all kinds of sports", android.R.drawable.ic_menu_camera)
-            "5" -> UserProfileData("Elan Ceres", "Male", "Education", "Bachelor of Education", "1999-11-01", "Reading", "I like reading.", android.R.drawable.ic_menu_camera)
-            "6" -> UserProfileData("Anon Chi", "Female", "Business", "Master of Marketing", "2000-07-18", "Guitar", "I like playing guitar and band activities.", android.R.drawable.ic_menu_camera)
-            else -> UserProfileData("Unknown", "Unknown", "N/A", "N/A", "N/A", "N/A", "N/A", android.R.drawable.ic_menu_gallery)
+            "2" -> UserProfileData("James Ling", "Male", "Arts", "Bachelor of Music", "2001-09-05", "Dance", "I enjoy popping dance and bbox.", R.drawable.ic_menu_camera)
+            "3" -> UserProfileData("Jasmine", "Female", "Science", "Bachelor of Science", "2000-02-28", "Swimming", "I enjoy swimming!", R.drawable.ic_menu_camera)
+            "4" -> UserProfileData("Leta Zhang", "Male", "Engineering", "Master of Civil Engineering", "1997-12-08", "All kinds of sports", "I like all kinds of sports", R.drawable.ic_menu_camera)
+            "5" -> UserProfileData("Elan Ceres", "Male", "Education", "Bachelor of Education", "1999-11-01", "Reading", "I like reading.", R.drawable.ic_menu_camera)
+            "6" -> UserProfileData("Anon Chi", "Female", "Business", "Master of Marketing", "2000-07-18", "Guitar", "I like playing guitar and band activities.", R.drawable.ic_menu_camera)
+            else -> UserProfileData("Unknown", "Unknown", "N/A", "N/A", "N/A", "N/A", "N/A", R.drawable.ic_menu_gallery)
         }
     }
 

@@ -14,10 +14,10 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.mysquad.ViewModel.AuthViewModel
-import com.example.mysquad.navigation.AppNavGraph
 import com.example.mysquad.ui.theme.MySquadTheme
 import com.example.mysquad.ui.theme.ThemeMode
 import android.Manifest
+import com.example.mysquad.navigation.RootNavGraph
 
 
 class MainActivity : ComponentActivity() {
@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val authViewModel: AuthViewModel = viewModel()
 
-                AppNavGraph(
+                RootNavGraph(
                     navController = navController,
                     onThemeChange = { themeMode = it },
                     authViewModel = authViewModel

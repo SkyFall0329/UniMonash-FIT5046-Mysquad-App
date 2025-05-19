@@ -8,15 +8,12 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
-import com.example.mysquad.entity.jianhui.Event
-import com.example.mysquad.entity.jianhui.User
-import com.example.mysquad.entity.jianhui.local.LocalEvent
+import com.example.mysquad.data.entityForTesting.jianhui.Event
+import com.example.mysquad.data.entityForTesting.jianhui.User
+import com.example.mysquad.data.entityForTesting.jianhui.local.LocalEvent
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

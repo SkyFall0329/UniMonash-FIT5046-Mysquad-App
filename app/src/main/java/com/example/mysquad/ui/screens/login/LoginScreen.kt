@@ -118,7 +118,7 @@ fun LoginScreenWithAnimation(
                 coroutineScope.launch {
                     try {
                         viewModel.signInWithGoogle(idToken)
-                        navController.navigate(Screen.Main.route) {
+                        navController.navigate(Screen.MainGraph.route) {
                             popUpTo("login") { inclusive = true }
                         }
                     } catch (e: Exception) {
@@ -132,7 +132,7 @@ fun LoginScreenWithAnimation(
     LaunchedEffect(uiState) {
         when (uiState) {
             is AuthUiState.Error -> snackbarHostState.showSnackbar(uiState.message)
-            is AuthUiState.Success -> navController.navigate(Screen.Main.route) {
+            is AuthUiState.Success -> navController.navigate(Screen.MainGraph.route) {
                 popUpTo("login") { inclusive = true }
             }
             else -> {}

@@ -1,5 +1,6 @@
 package com.example.mysquad.ui.screens.mainScreen.TodoScreen
 
+import android.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,7 +19,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -39,19 +39,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.mysquad.entity.jasmine.FriendRequest
+import com.example.mysquad.data.entityForTesting.jasmine.FriendRequest
 import com.example.mysquad.navigation.Screen
 
 @Composable
 fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Unit) {
     val friendRequests = remember {
         mutableStateListOf(
-            FriendRequest("1", "Ashely Zhu", android.R.drawable.ic_menu_camera, "Sunday Basketball"),
-            FriendRequest("2", "James Ling", android.R.drawable.ic_menu_camera, "Popping show"),
-            FriendRequest("3", "Jasmine", android.R.drawable.ic_menu_camera, "Happy Swimming"),
-            FriendRequest("4", "Leta Zhang", android.R.drawable.ic_menu_camera, "Yoga Nice"),
-            FriendRequest("5", "Elan Ceres", android.R.drawable.ic_menu_camera, "K-pop dance"),
-            FriendRequest("6", "Anon Chi", android.R.drawable.ic_menu_camera, "Anime Watching")
+            FriendRequest("1", "Ashely Zhu", R.drawable.ic_menu_camera, "Sunday Basketball"),
+            FriendRequest("2", "James Ling", R.drawable.ic_menu_camera, "Popping show"),
+            FriendRequest("3", "Jasmine", R.drawable.ic_menu_camera, "Happy Swimming"),
+            FriendRequest("4", "Leta Zhang", R.drawable.ic_menu_camera, "Yoga Nice"),
+            FriendRequest("5", "Elan Ceres", R.drawable.ic_menu_camera, "K-pop dance"),
+            FriendRequest("6", "Anon Chi", R.drawable.ic_menu_camera, "Anime Watching")
         )
     }
 

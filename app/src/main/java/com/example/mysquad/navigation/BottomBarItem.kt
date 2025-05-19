@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.mainNavi
+package com.example.mysquad.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add

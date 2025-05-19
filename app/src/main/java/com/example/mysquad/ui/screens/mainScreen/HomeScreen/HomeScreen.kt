@@ -1,9 +1,7 @@
 package com.example.mysquad.ui.screens.mainScreen.HomeScreen
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
 import android.util.Log
@@ -36,9 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import com.example.mysquad.ViewModel.WeatherViewModel
-import com.example.mysquad.entity.larry.Activity
+import com.example.mysquad.data.entityForTesting.larry.Activity
 import com.google.android.gms.location.LocationServices
 
 
