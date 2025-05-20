@@ -1,6 +1,7 @@
 package com.example.mysquad.navigation
 
 sealed class Screen(val route: String) {
+    object Auth : Screen("auth")
     object Login : Screen("login_screen")
     object RegisterEmail : Screen("register_email")
     object RegisterVerify : Screen("register_code_verify")
@@ -9,7 +10,8 @@ sealed class Screen(val route: String) {
     object ForgotPasswordEmail : Screen("forgot_password_email")
     object ForgotPasswordVerify : Screen("forgot_password_verify")
     object ForgotPasswordReset : Screen("forgot_password_reset")
-    object Main : Screen("main")
+
+    object MainGraph : Screen("main_graph")
     object HomeScreen : Screen("home_screen")
     object SquareScreen : Screen("square_screen")
     object PostDetail : Screen("post_detail")
