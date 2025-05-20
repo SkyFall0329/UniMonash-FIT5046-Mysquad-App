@@ -37,7 +37,8 @@ import com.example.mysquad.navigation.Screen
 @Composable
 fun ProfileScreen(currentUser: UserProfile,
                   viewModel: AuthViewModel,
-                  navController: NavController) {
+                  navController: NavController,
+                  rootNavController: NavController) {
     var isEditing by remember { mutableStateOf(false) }
 
     var faculty by remember { mutableStateOf(currentUser.faculty) }
@@ -76,7 +77,7 @@ fun ProfileScreen(currentUser: UserProfile,
             actions = {
                 TextButton(onClick = {
                     viewModel.signOut()
-                    navController.navigate(Screen.Auth.route) {
+                    rootNavController.navigate(Screen.Login.route) {
                         popUpTo(0)
                     }
                 }) {

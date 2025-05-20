@@ -30,34 +30,11 @@ fun RootNavGraph(
             startDestination = Screen.Login.route,
             route = Screen.Auth.route
         ) {
-            composable(Screen.Login.route) {
-                LoginScreenWithAnimation(
-                    navController = navController, // 👈 用顶层 controller
-                    onThemeChange = onThemeChange,
-                    viewModel = authViewModel
-                )
-            }
-            composable(Screen.RegisterEmail.route) {
-                RegisterEmailScreen { email ->
-                    authViewModel.setTempEmail(email.trim())
-                    navController.navigate(Screen.RegisterComplete.route)
-                }
-            }
-            composable(Screen.RegisterComplete.route) {
-                RegisterCompleteScreen { username, password ->
-                    authViewModel.register(
-                        email = authViewModel.tempEmail,
-                        pwd = password,
-                        username = username
-                    )
-                }
-            }
-            composable(Screen.ForgotPassword.route) {
-                ForgotEmailScreen(
-                    navController = navController,
-                    viewModel = authViewModel
-                )
-            }
+            AuthNavGraph(
+                navController = navController,
+                onThemeChange = onThemeChange,
+                authViewModel = authViewModel
+            )
         }
         navigation(
             startDestination = Screen.HomeScreen.route,

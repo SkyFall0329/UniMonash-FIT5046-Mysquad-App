@@ -151,14 +151,8 @@ fun MainScreen(
                         bio = "Hi! I'm passionate about tech and fitness. I enjoy coding and leading group workouts!"
                     ),
                     viewModel = authViewModel,
-                    navController = navController
-                )
-            }
-            composable(Screen.Auth.route) {
-                LoginScreenWithAnimation(
-                    navController = rootNavController,
-                    viewModel = authViewModel,
-                    onThemeChange = onThemeChange
+                    navController = navController,
+                    rootNavController = rootNavController
                 )
             }
         }
