@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.TodoScreen
+package com.example.mysquad.ui.screens.mainScreens.TodoScreen
 
 import android.os.Build
 import androidx.annotation.RequiresApi

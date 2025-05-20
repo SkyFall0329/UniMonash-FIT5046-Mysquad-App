@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.mainNavi
+package com.example.mysquad.ui.screens.mainScreens.NavigationBar
 
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.*
@@ -18,18 +18,17 @@ import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.data.entityForTesting.jianhui.local.LocalEvent
 import com.example.mysquad.data.entityForTesting.jianhui.local.LocalUser
 import com.example.mysquad.navigation.Screen
-import com.example.mysquad.ui.screens.mainScreen.AddScreen.AddScreen
-import com.example.mysquad.ui.screens.mainScreen.HomeScreen.HomeScreen
-import com.example.mysquad.ui.screens.mainScreen.ProfileScreen.ProfileScreen
-import com.example.mysquad.ui.screens.mainScreen.SquareScreen.GetPostDetail
-import com.example.mysquad.ui.screens.mainScreen.SquareScreen.SquareScreen
-import com.example.mysquad.ui.screens.mainScreen.TodoScreen.EventDetailScreen
-import com.example.mysquad.ui.screens.mainScreen.TodoScreen.RequestsList
-import com.example.mysquad.ui.screens.mainScreen.TodoScreen.TodoScreen
-import com.example.mysquad.ui.screens.mainScreen.TodoScreen.UserProfile
+import com.example.mysquad.ui.screens.mainScreens.AddScreen.AddScreen
+import com.example.mysquad.ui.screens.mainScreens.HomeScreen.HomeScreen
+import com.example.mysquad.ui.screens.mainScreens.ProfileScreen.ProfileScreen
+import com.example.mysquad.ui.screens.mainScreens.SquareScreen.GetPostDetail
+import com.example.mysquad.ui.screens.mainScreens.SquareScreen.SquareScreen
+import com.example.mysquad.ui.screens.mainScreens.TodoScreen.EventDetailScreen
+import com.example.mysquad.ui.screens.mainScreens.TodoScreen.RequestsList
+import com.example.mysquad.ui.screens.mainScreens.TodoScreen.TodoScreen
+import com.example.mysquad.ui.screens.mainScreens.TodoScreen.UserProfile
 import com.example.mysquad.data.entityForTesting.larry.UserProfile
 import com.example.mysquad.navigation.BottomBarItem
-import com.example.mysquad.ui.screens.login.LoginScreenWithAnimation
 import com.example.mysquad.ui.theme.ThemeMode
 
 @RequiresApi(64)

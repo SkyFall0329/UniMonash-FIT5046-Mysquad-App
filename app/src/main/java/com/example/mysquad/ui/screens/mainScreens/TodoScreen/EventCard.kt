@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.TodoScreen
+package com.example.mysquad.ui.screens.mainScreens.TodoScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

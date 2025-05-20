@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.SquareScreen
+package com.example.mysquad.ui.screens.mainScreens.SquareScreen
 
 import android.widget.Toast
 import androidx.compose.foundation.Image

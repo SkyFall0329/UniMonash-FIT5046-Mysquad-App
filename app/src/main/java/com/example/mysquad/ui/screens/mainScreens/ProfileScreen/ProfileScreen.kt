@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.ProfileScreen
+package com.example.mysquad.ui.screens.mainScreens.ProfileScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

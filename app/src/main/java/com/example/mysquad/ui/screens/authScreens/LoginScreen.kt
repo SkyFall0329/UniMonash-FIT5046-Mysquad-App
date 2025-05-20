@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.login
+package com.example.mysquad.ui.screens.authScreens
 
 import android.app.Activity.RESULT_OK
 import androidx.activity.compose.rememberLauncherForActivityResult

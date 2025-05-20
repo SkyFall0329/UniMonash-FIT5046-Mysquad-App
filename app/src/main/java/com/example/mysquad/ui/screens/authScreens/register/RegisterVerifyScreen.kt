@@ -1,6 +1,5 @@
-package com.example.mysquad.ui.screens.register
+package com.example.mysquad.ui.screens.authScreens.register
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -14,7 +13,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import com.example.mysquad.ui.screens.forgotpassword.SixDigitCodeInput
 import kotlinx.coroutines.delay
 
 @Composable

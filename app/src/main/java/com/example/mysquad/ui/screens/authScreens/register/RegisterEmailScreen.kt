@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.register
+package com.example.mysquad.ui.screens.authScreens.register
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

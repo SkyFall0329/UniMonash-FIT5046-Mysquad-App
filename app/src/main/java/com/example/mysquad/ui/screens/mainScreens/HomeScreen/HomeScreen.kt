@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.HomeScreen
+package com.example.mysquad.ui.screens.mainScreens.HomeScreen
 
 import android.annotation.SuppressLint
 import android.content.Context

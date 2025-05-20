@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.forgotpassword
+package com.example.mysquad.ui.screens.authScreens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +37,7 @@ import com.example.mysquad.navigation.Screen
 import kotlinx.coroutines.delay
 
 @Composable
-fun ForgotEmailScreen(
+fun ResetPasswordScreen(
     navController: NavController,
     viewModel: AuthViewModel = viewModel()
 ) {

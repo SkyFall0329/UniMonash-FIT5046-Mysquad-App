@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.AddScreen
+package com.example.mysquad.ui.screens.mainScreens.AddScreen
 
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -11,16 +11,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.*
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import com.example.mysquad.R
 import com.example.mysquad.componets.ashley.*
-import com.example.mysquad.ui.screens.mainScreen.SquareScreen.DisplayDatePicker
+import com.example.mysquad.ui.screens.mainScreens.SquareScreen.DisplayDatePicker
 
 @RequiresApi(64)
 @Composable

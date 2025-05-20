@@ -13,14 +13,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.mysquad.ViewModel.AuthUiState
 import com.example.mysquad.ViewModel.AuthViewModel
-import com.example.mysquad.ui.screens.forgotpassword.ForgotEmailScreen
-import com.example.mysquad.ui.screens.forgotpassword.ForgotResetPasswordScreen
-import com.example.mysquad.ui.screens.forgotpassword.ForgotVerifyScreen
-import com.example.mysquad.ui.screens.login.LoginScreenWithAnimation
-import com.example.mysquad.ui.screens.mainScreen.mainNavi.MainScreen
-import com.example.mysquad.ui.screens.register.RegisterCompleteScreen
-import com.example.mysquad.ui.screens.register.RegisterEmailScreen
-import com.example.mysquad.ui.screens.register.RegisterVerifyScreen
+import com.example.mysquad.ui.screens.authScreens.ResetPasswordScreen
+import com.example.mysquad.ui.screens.authScreens.LoginScreenWithAnimation
+import com.example.mysquad.ui.screens.mainScreens.NavigationBar.MainScreen
+import com.example.mysquad.ui.screens.authScreens.register.RegisterCompleteScreen
+import com.example.mysquad.ui.screens.authScreens.register.RegisterEmailScreen
+import com.example.mysquad.ui.screens.authScreens.register.RegisterVerifyScreen
 import com.example.mysquad.ui.theme.ThemeMode
 import kotlinx.coroutines.delay
 
@@ -85,27 +83,12 @@ fun NavGraphBuilder.AuthNavGraph(
     }
     /** ---------- FORGOT-PASSWORD FLOW ---------- **/
     composable(Screen.ForgotPassword.route) {
-        ForgotEmailScreen(
+        ResetPasswordScreen(
             navController = navController,
             viewModel = authViewModel
         )
     }
 
-    composable(Screen.ForgotPasswordVerify.route) {
-        ForgotVerifyScreen(
-            email = "",          // supply real email
-            onVerifySuccess = { navController.navigate(Screen.ForgotPasswordReset.route) },
-            onResendCode = { /* TODO */ }
-        )
-    }
-
-    composable(Screen.ForgotPasswordReset.route) {
-        ForgotResetPasswordScreen { /* newPassword -> */
-            navController.navigate(Screen.Login.route) {
-                popUpTo(Screen.Login.route) { inclusive = true }
-            }
-        }
-    }
     composable(Screen.MainGraph.route) {
         MainScreen(
             authViewModel = authViewModel,

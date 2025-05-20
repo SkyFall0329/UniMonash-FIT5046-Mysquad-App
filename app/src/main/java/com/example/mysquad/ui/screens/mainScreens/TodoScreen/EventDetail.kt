@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.TodoScreen
+package com.example.mysquad.ui.screens.mainScreens.TodoScreen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement

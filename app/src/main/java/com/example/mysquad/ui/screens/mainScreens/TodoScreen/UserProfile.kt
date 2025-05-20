@@ -1,4 +1,4 @@
-package com.example.mysquad.ui.screens.mainScreen.TodoScreen
+package com.example.mysquad.ui.screens.mainScreens.TodoScreen
 
 import android.R
 import androidx.compose.foundation.background
