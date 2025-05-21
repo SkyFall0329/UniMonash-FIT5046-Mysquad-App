@@ -22,8 +22,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.example.mysquad.data.entityForTesting.jianhui.Event
-import com.example.mysquad.data.entityForTesting.jianhui.User
+import com.example.mysquad.api.data.entityForTesting.jianhui.Event
+import com.example.mysquad.api.data.entityForTesting.jianhui.User
 
 /**
  * Event card for displaying event details.

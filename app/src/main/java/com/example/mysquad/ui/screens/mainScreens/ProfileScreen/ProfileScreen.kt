@@ -21,17 +21,26 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mysquad.ViewModel.AuthViewModel
+import com.example.mysquad.ViewModel.UserProfileViewModel
+import com.example.mysquad.ViewModel.factory.UserProfileViewModelFactory
 import com.example.mysquad.componets.larry.DisplayDatePicker
-
-import com.example.mysquad.data.entityForTesting.larry.UserProfile
+import com.example.mysquad.api.data.entityForTesting.larry.UserProfile
+import com.example.mysquad.data.localRoom.database.AppDatabase
+import com.example.mysquad.data.remoteFireStore.UserRemoteDataSource
+import com.example.mysquad.data.repository.UserRepository
 import com.example.mysquad.navigation.Screen
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,10 +48,30 @@ fun ProfileScreen(currentUser: UserProfile,
                   viewModel: AuthViewModel,
                   navController: NavController,
                   rootNavController: NavController) {
-    var isEditing by remember { mutableStateOf(false) }
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-    var faculty by remember { mutableStateOf(currentUser.faculty) }
-    var degree by remember { mutableStateOf(currentUser.degree) }
+    val context = LocalContext.current
+    // 手动构造依赖
+    val db = remember { AppDatabase.getInstance(context) }
+    val userDao = db.userDao()
+    val remote = UserRemoteDataSource()
+    val userRepository = UserRepository(userDao, remote)
+
+    val profileViewModel: UserProfileViewModel = viewModel(
+        factory = UserProfileViewModelFactory(userRepository)
+    )
+
+    val user by profileViewModel.user.collectAsState()
+
+    LaunchedEffect(Unit) {
+        profileViewModel.loadUserFromRoom(userId.toString())
+        profileViewModel.syncUserFromRemote(userId.toString())
+    }
+
+
+    var isEditing by remember { mutableStateOf(false) }
+    var faculty = user?.userFaculty.toString()
+    var degree = user?.userDegree.toString()
     var birthday by remember { mutableStateOf(currentUser.birthday) }
     var preferredSports by remember { mutableStateOf(currentUser.favoriteSports) }
     var bio by remember { mutableStateOf(currentUser.bio) }
@@ -147,12 +176,12 @@ fun ProfileScreen(currentUser: UserProfile,
                 item {
                     InfoCard(
                         label = "ID",
-                        value = currentUser.userID,
+                        value = userId.toString(),
                         modifier = Modifier.padding(top = 2.dp, bottom = 12.dp)
                     )
                     InfoCard(
                         label = "Email",
-                        value = currentUser.userEmail,
+                        value = user?.userEmail.toString(),
                     )
                 }
 

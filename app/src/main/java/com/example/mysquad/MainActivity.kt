@@ -17,6 +17,7 @@ import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.ui.theme.MySquadTheme
 import com.example.mysquad.ui.theme.ThemeMode
 import android.Manifest
+import com.example.mysquad.ViewModel.UserProfileViewModel
 import com.example.mysquad.navigation.RootNavGraph
 
 
@@ -56,11 +57,10 @@ class MainActivity : ComponentActivity() {
             ) {
                 val navController = rememberNavController()
                 val authViewModel: AuthViewModel = viewModel()
-
                 RootNavGraph(
                     navController = navController,
                     onThemeChange = { themeMode = it },
-                    authViewModel = authViewModel
+                    authViewModel = authViewModel,
                 )
             }
         }

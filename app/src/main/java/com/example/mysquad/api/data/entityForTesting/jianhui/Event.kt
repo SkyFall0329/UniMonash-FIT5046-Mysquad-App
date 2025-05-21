@@ -1,4 +1,4 @@
-package com.example.mysquad.data.entityForTesting.jianhui
+package com.example.mysquad.api.data.entityForTesting.jianhui
 
 import java.time.LocalDate
 import java.time.LocalDateTime

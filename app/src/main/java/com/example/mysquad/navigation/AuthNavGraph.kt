@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.mysquad.ViewModel.AuthUiState
 import com.example.mysquad.ViewModel.AuthViewModel
+import com.example.mysquad.ViewModel.UserProfileViewModel
 import com.example.mysquad.ui.screens.authScreens.ResetPasswordScreen
 import com.example.mysquad.ui.screens.authScreens.LoginScreenWithAnimation
 import com.example.mysquad.ui.screens.mainScreens.NavigationBar.MainScreen
@@ -26,7 +27,7 @@ import kotlinx.coroutines.delay
 fun NavGraphBuilder.AuthNavGraph(
     navController: NavHostController,
     onThemeChange: (ThemeMode) -> Unit,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
 ) {
     composable(Screen.Login.route) {
         LoginScreenWithAnimation(
@@ -93,7 +94,7 @@ fun NavGraphBuilder.AuthNavGraph(
         MainScreen(
             authViewModel = authViewModel,
             onThemeChange = onThemeChange,
-            rootNavController = navController
+            rootNavController = navController,
         )
     }
 }

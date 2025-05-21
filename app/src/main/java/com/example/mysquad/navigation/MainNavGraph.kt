@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.mysquad.ViewModel.AuthViewModel
+import com.example.mysquad.ViewModel.UserProfileViewModel
 import com.example.mysquad.ui.screens.mainScreens.NavigationBar.MainScreen
 import com.example.mysquad.ui.theme.ThemeMode
 
@@ -13,13 +14,13 @@ import com.example.mysquad.ui.theme.ThemeMode
 fun NavGraphBuilder.MainNavGraph(
     navController: NavHostController,
     onThemeChange: (ThemeMode) -> Unit,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
 ) {
     composable(Screen.HomeScreen.route) {
         MainScreen(
             onThemeChange = onThemeChange,
             authViewModel = authViewModel,
-            rootNavController = navController
+            rootNavController = navController,
         )
     }
 }

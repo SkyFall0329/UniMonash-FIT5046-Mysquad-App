@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MySquad"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCoKwYA8ZnmXRFhKBiysdAxH7wKaTYj5mM"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -22,7 +25,6 @@
             android:theme="@style/Theme.MySquad">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

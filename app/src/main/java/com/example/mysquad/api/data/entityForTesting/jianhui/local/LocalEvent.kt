@@ -1,14 +1,14 @@
-package com.example.mysquad.data.entityForTesting.jianhui.local
+package com.example.mysquad.api.data.entityForTesting.jianhui.local
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.mysquad.data.entityForTesting.jianhui.Event
-import com.example.mysquad.data.entityForTesting.jianhui.EventStatus
-import com.example.mysquad.data.entityForTesting.jianhui.EventType
-import com.example.mysquad.data.entityForTesting.jianhui.local.LocalUser.user1
-import com.example.mysquad.data.entityForTesting.jianhui.local.LocalUser.user2
-import com.example.mysquad.data.entityForTesting.jianhui.local.LocalUser.user3
-import com.example.mysquad.data.entityForTesting.jianhui.local.LocalUser.user4
+import com.example.mysquad.api.data.entityForTesting.jianhui.Event
+import com.example.mysquad.api.data.entityForTesting.jianhui.EventStatus
+import com.example.mysquad.api.data.entityForTesting.jianhui.EventType
+import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalUser.user1
+import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalUser.user2
+import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalUser.user3
+import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalUser.user4
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
