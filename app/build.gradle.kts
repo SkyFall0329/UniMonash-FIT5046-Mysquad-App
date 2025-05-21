@@ -85,4 +85,11 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.gson)
     implementation(libs.play.services.location)
+    implementation(libs.play.services.maps)
+    implementation(libs.maps.compose)
+    implementation(libs.androidx.room.runtime)
+    kapt("androidx.room:room-compiler:2.7.1")
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.firebase.firestore.ktx.v24100)
+    implementation(libs.kotlinx.coroutines.play.services)
 }

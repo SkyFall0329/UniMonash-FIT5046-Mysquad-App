@@ -1,4 +1,4 @@
-package com.example.mysquad.data.dto
+package com.example.mysquad.api.data.dto
 
 
 data class WeatherResponse(

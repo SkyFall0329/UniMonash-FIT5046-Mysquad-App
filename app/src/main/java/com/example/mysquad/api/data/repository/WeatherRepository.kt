@@ -1,7 +1,7 @@
-package com.example.mysquad.data.repository
+package com.example.mysquad.api.data.repository
 
 import com.example.mysquad.api.retrofitInstance.RetrofitInstance
-import com.example.mysquad.data.dto.WeatherResponse
+import com.example.mysquad.api.data.dto.WeatherResponse
 
 class WeatherRepository {
     private val api = RetrofitInstance.api

@@ -26,7 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.mysquad.data.entityForTesting.jasmine.UserProfileData
+import com.example.mysquad.api.data.entityForTesting.jasmine.UserProfileData
 
 
 @Composable

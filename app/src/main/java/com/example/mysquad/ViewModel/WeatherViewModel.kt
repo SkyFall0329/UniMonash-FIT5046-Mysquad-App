@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mysquad.data.dto.WeatherResponse
-import com.example.mysquad.data.repository.WeatherRepository
+import com.example.mysquad.api.data.dto.WeatherResponse
+import com.example.mysquad.api.data.repository.WeatherRepository
 import kotlinx.coroutines.launch
 
 class WeatherViewModel : ViewModel() {
