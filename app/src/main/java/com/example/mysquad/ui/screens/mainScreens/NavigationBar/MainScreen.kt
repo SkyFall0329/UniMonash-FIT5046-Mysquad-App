@@ -15,8 +15,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.mysquad.ViewModel.AuthViewModel
-import com.example.mysquad.data.entityForTesting.jianhui.local.LocalEvent
-import com.example.mysquad.data.entityForTesting.jianhui.local.LocalUser
+import com.example.mysquad.ViewModel.UserProfileViewModel
+import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalEvent
+import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalUser
 import com.example.mysquad.navigation.Screen
 import com.example.mysquad.ui.screens.mainScreens.AddScreen.AddScreen
 import com.example.mysquad.ui.screens.mainScreens.HomeScreen.HomeScreen
@@ -27,7 +28,7 @@ import com.example.mysquad.ui.screens.mainScreens.TodoScreen.EventDetailScreen
 import com.example.mysquad.ui.screens.mainScreens.TodoScreen.RequestsList
 import com.example.mysquad.ui.screens.mainScreens.TodoScreen.TodoScreen
 import com.example.mysquad.ui.screens.mainScreens.TodoScreen.UserProfile
-import com.example.mysquad.data.entityForTesting.larry.UserProfile
+import com.example.mysquad.api.data.entityForTesting.larry.UserProfile
 import com.example.mysquad.navigation.BottomBarItem
 import com.example.mysquad.ui.theme.ThemeMode
 
@@ -36,7 +37,7 @@ import com.example.mysquad.ui.theme.ThemeMode
 fun MainScreen(
     rootNavController: NavHostController,
     onThemeChange: (ThemeMode) -> Unit,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
 ) {
     val navController = rememberNavController()
     val items = BottomBarItem.items
@@ -151,7 +152,7 @@ fun MainScreen(
                     ),
                     viewModel = authViewModel,
                     navController = navController,
-                    rootNavController = rootNavController
+                    rootNavController = rootNavController,
                 )
             }
         }

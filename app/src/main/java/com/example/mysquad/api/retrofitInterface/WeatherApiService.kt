@@ -1,6 +1,6 @@
 package com.example.mysquad.api.retrofitInterface
 
-import com.example.mysquad.data.dto.WeatherResponse
+import com.example.mysquad.api.data.dto.WeatherResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import com.example.mysquad.ViewModel.AuthViewModel
+import com.example.mysquad.ViewModel.UserProfileViewModel
 import com.example.mysquad.ui.theme.ThemeMode
 
 @RequiresApi(64)

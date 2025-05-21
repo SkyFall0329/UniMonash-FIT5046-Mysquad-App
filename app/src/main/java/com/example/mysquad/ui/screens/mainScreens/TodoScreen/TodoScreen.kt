@@ -11,9 +11,9 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
-import com.example.mysquad.data.entityForTesting.jianhui.Event
-import com.example.mysquad.data.entityForTesting.jianhui.User
-import com.example.mysquad.data.entityForTesting.jianhui.local.LocalEvent
+import com.example.mysquad.api.data.entityForTesting.jianhui.Event
+import com.example.mysquad.api.data.entityForTesting.jianhui.User
+import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalEvent
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

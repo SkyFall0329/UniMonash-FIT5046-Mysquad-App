@@ -38,8 +38,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.mysquad.data.entityForTesting.jianhui.Event
-import com.example.mysquad.data.entityForTesting.jianhui.User
+import com.example.mysquad.api.data.entityForTesting.jianhui.Event
+import com.example.mysquad.api.data.entityForTesting.jianhui.User
 import com.example.mysquad.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)

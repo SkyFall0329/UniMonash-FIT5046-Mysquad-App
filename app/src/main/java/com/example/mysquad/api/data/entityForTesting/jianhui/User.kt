@@ -1,4 +1,4 @@
-package com.example.mysquad.data.entityForTesting.jianhui
+package com.example.mysquad.api.data.entityForTesting.jianhui
 
 data class User(
     val email: String, // the primary key

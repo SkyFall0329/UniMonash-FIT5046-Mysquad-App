@@ -1,7 +1,6 @@
 package com.example.mysquad.ui.screens.mainScreens.AddScreen
 
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,15 +9,21 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.*
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
-import com.example.mysquad.R
 import com.example.mysquad.componets.ashley.*
 import com.example.mysquad.ui.screens.mainScreens.SquareScreen.DisplayDatePicker
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.rememberCameraPositionState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 
+@Preview
 @RequiresApi(64)
 @Composable
 fun AddScreen(modifier: Modifier = Modifier) {
@@ -26,6 +31,11 @@ fun AddScreen(modifier: Modifier = Modifier) {
     var desc by remember { mutableStateOf("") }
     var num by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
+
+    val singapore = LatLng(1.35, 103.87)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(singapore, 10f)
+    }
 
     Surface(
         modifier = Modifier
@@ -120,20 +130,35 @@ fun AddScreen(modifier: Modifier = Modifier) {
                 label = "Number of people scheduled for the event"
             )
 
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.googlemap),
-                    contentDescription = "Map preview",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                        .padding(vertical = 20.dp)
-                )
-            }
+//            Box(
+//                contentAlignment = Alignment.Center,
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+////                Image(
+////                    painter = painterResource(id = R.drawable.googlemap),
+////                    contentDescription = "Map preview",
+////                    contentScale = ContentScale.Crop,
+////                    modifier = Modifier
+////                        .fillMaxWidth()
+////                        .height(250.dp)
+////                        .padding(vertical = 20.dp)
+////                )
+//            }
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(250.dp)
+//                    .padding(vertical = 20.dp)
+//            ) {
+//                GoogleMap(
+//                    modifier = Modifier.fillMaxSize(),
+//                    cameraPositionState = cameraPositionState
+//                )
+//            }
+            MelbourneMap(modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp))
+
 
             //按钮区域
             Row(
@@ -200,6 +225,29 @@ fun CustomTextField(
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface
             )
+        )
+    }
+}
+
+@Composable
+fun MelbourneMap(modifier: Modifier) {
+    val melbourne = LatLng(-37.8136, 144.9631)
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(melbourne, 12f)
+    }
+
+    val markerState = remember { MarkerState(position = melbourne) }
+
+    GoogleMap(
+
+        modifier = Modifier.fillMaxSize().height(200.dp),
+        cameraPositionState = cameraPositionState
+    ) {
+        Marker(
+            state = markerState,
+            title = "Melbourne",
+            snippet = "The capital of Victoria"
         )
     }
 }
