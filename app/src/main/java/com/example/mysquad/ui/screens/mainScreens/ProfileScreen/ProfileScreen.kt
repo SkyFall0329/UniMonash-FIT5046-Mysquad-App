@@ -1,5 +1,6 @@
 package com.example.mysquad.ui.screens.mainScreens.ProfileScreen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,6 +38,7 @@ import com.example.mysquad.ViewModel.factory.UserProfileViewModelFactory
 import com.example.mysquad.componets.larry.DisplayDatePicker
 import com.example.mysquad.api.data.entityForTesting.larry.UserProfile
 import com.example.mysquad.data.localRoom.database.AppDatabase
+import com.example.mysquad.data.localRoom.entity.UserProfileEntity
 import com.example.mysquad.data.remoteFireStore.UserRemoteDataSource
 import com.example.mysquad.data.repository.UserRepository
 import com.example.mysquad.navigation.Screen
@@ -44,14 +46,14 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(currentUser: UserProfile,
+fun ProfileScreen(
                   viewModel: AuthViewModel,
                   navController: NavController,
                   rootNavController: NavController) {
     val userId = FirebaseAuth.getInstance().currentUser?.uid
 
     val context = LocalContext.current
-    // 手动构造依赖
+
     val db = remember { AppDatabase.getInstance(context) }
     val userDao = db.userDao()
     val remote = UserRemoteDataSource()
@@ -63,22 +65,33 @@ fun ProfileScreen(currentUser: UserProfile,
 
     val user by profileViewModel.user.collectAsState()
 
+
     LaunchedEffect(Unit) {
         profileViewModel.loadUserFromRoom(userId.toString())
         profileViewModel.syncUserFromRemote(userId.toString())
+
     }
 
 
+
     var isEditing by remember { mutableStateOf(false) }
-    var faculty = user?.userFaculty.toString()
-    var degree = user?.userDegree.toString()
-    var birthday by remember { mutableStateOf(currentUser.birthday) }
-    var preferredSports by remember { mutableStateOf(currentUser.favoriteSports) }
-    var bio by remember { mutableStateOf(currentUser.bio) }
+    LaunchedEffect(user) {
+        if (!isEditing) {
+            Toast.makeText(context, "Profile saved!", Toast.LENGTH_SHORT).show()
+        }
+    }
+    var username by remember(user) { mutableStateOf(user?.userName ?: "") }
+    var faculty by remember(user) { mutableStateOf(user?.userFaculty ?: "") }
+    var degree by remember(user) { mutableStateOf(user?.userDegree ?: "") }
+    var gender by remember(user) { mutableStateOf(user?.userGender ?: "") }
+    var birthday by remember(user) { mutableStateOf(user?.userBirthday ?: "") }
+    var preferredSports by remember(user) { mutableStateOf(user?.userPreferredSports ?: "") }
+    var bio by remember(user) { mutableStateOf(user?.userBio ?: "") }
 
     val editableFields = listOf(
         "Faculty" to faculty,
         "Degree" to degree,
+        "Gender" to gender,
         "Birthday" to birthday,
         "Preferred Sports" to preferredSports,
         "Bio" to bio
@@ -95,7 +108,26 @@ fun ProfileScreen(currentUser: UserProfile,
                 )
             },
             navigationIcon = {
-                TextButton(onClick = { isEditing = !isEditing }) {
+                TextButton(onClick = {
+                    if (isEditing) {
+                        userId?.let { uid ->
+                            val updatedUser = UserProfileEntity(
+                                userId = uid,
+                                userName = user?.userName ?: "",
+                                userEmail = user?.userEmail ?: "",
+                                userGender = gender,
+                                userFaculty = faculty,
+                                userDegree = degree,
+                                userBirthday = birthday,
+                                userPreferredSports = preferredSports,
+                                userBio = bio,
+                                userUpdatedAt = System.currentTimeMillis()
+                            )
+                            profileViewModel.updateUser(updatedUser)
+                        }
+                    }
+                    isEditing = !isEditing
+                }) {
                     Text(
                         text = if (isEditing) "Save" else "Edit",
                         color = MaterialTheme.colorScheme.primary,
@@ -147,15 +179,15 @@ fun ProfileScreen(currentUser: UserProfile,
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = currentUser.userName,
+                text = username,
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
             Icon(
-                imageVector = when (currentUser.gender.lowercase()) {
-                    "male" -> Icons.Default.Male
-                    "female" -> Icons.Default.Female
+                imageVector = when (gender) {
+                    "Male" -> Icons.Default.Male
+                    "Female" -> Icons.Default.Female
                     else -> Icons.Default.Person
                 },
                 contentDescription = "Gender",
@@ -205,13 +237,123 @@ fun ProfileScreen(currentUser: UserProfile,
                                         onValueChange = { birthday = it },
                                         modifier = Modifier.fillMaxWidth()
                                     )
-                                } else {
+                                }
+                                else if(label == "Gender"){
+                                    var genderExpanded by remember { mutableStateOf(false) }
+                                    val genderOptions = listOf("Male", "Female", "Other")
+                                    ExposedDropdownMenuBox(
+                                        expanded = genderExpanded,
+                                        onExpandedChange = { genderExpanded = !genderExpanded }
+                                    ) {
+                                        OutlinedTextField(
+                                            value = gender,
+                                            onValueChange = {},
+                                            readOnly = true,
+                                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = genderExpanded) },
+                                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                                        )
+
+                                        ExposedDropdownMenu(
+                                            expanded = genderExpanded,
+                                            onDismissRequest = { genderExpanded = false }
+                                        ) {
+                                            genderOptions.forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text(option) },
+                                                    onClick = {
+                                                        gender = option
+                                                        genderExpanded = false
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                else if(label == "Faculty"){
+                                    var facultyExpanded by remember { mutableStateOf(false) }
+                                    val facultyOptions = listOf(
+                                        "Arts",
+                                        "Business and Economics",
+                                        "Education",
+                                        "Engineering",
+                                        "Information Technology",
+                                        "Law",
+                                        "Medicine, Nursing and Health Sciences",
+                                        "Pharmacy and Pharmaceutical Sciences",
+                                        "Science"
+                                    )
+                                    ExposedDropdownMenuBox(
+                                        expanded = facultyExpanded,
+                                        onExpandedChange = { facultyExpanded = !facultyExpanded }
+                                    ) {
+                                        OutlinedTextField(
+                                            value = faculty,
+                                            onValueChange = {},
+                                            readOnly = true,
+                                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = facultyExpanded) },
+                                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                                        )
+
+                                        ExposedDropdownMenu(
+                                            expanded = facultyExpanded,
+                                            onDismissRequest = { facultyExpanded = false }
+                                        ) {
+                                            facultyOptions.forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text(option) },
+                                                    onClick = {
+                                                        faculty = option
+                                                        facultyExpanded = false
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                else if(label == "Degree"){
+                                    val degreeOptions = listOf(
+                                        "Bachelor's",
+                                        "Master's",
+                                        "PhD",
+                                        "Diploma",
+                                        "Graduate Certificate",
+                                        "Graduate Diploma",
+                                        "Honours"
+                                    )
+                                    var degreeExpanded by remember { mutableStateOf(false) }
+                                    ExposedDropdownMenuBox(
+                                        expanded = degreeExpanded,
+                                        onExpandedChange = { degreeExpanded = !degreeExpanded }
+                                    ) {
+                                        OutlinedTextField(
+                                            value = degree,
+                                            onValueChange = {},
+                                            readOnly = true,
+                                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = degreeExpanded) },
+                                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                                        )
+
+                                        ExposedDropdownMenu(
+                                            expanded = degreeExpanded,
+                                            onDismissRequest = { degreeExpanded = false }
+                                        ) {
+                                            degreeOptions.forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text(option) },
+                                                    onClick = {
+                                                        degree = option
+                                                        degreeExpanded = false
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
                                     OutlinedTextField(
                                         value = value,
                                         onValueChange = {
                                             when (label) {
-                                                "Faculty" -> faculty = it
-                                                "Degree" -> degree = it
                                                 "Preferred Sports" -> preferredSports = it
                                                 "Bio" -> bio = it
                                             }
@@ -242,7 +384,7 @@ fun InfoCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(), // 👈 用外部 modifier 替代硬编码
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),

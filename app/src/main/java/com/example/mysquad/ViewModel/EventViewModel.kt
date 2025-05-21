@@ -20,6 +20,16 @@ class EventViewModel(
         initialValue = emptyList()
     )
     val events: StateFlow<List<EventEntity>> = _events
+    private val _relevantEvents = MutableStateFlow<List<EventEntity>>(emptyList())
+    val relevantEvents: StateFlow<List<EventEntity>> = _relevantEvents
+
+    fun observeRelevantEvents(userId: String) {
+        viewModelScope.launch {
+            eventRepository.getRelevantEventsAsFlow(userId).collect {
+                _relevantEvents.value = it
+            }
+        }
+    }
 
     private val _eventCreated = MutableStateFlow<Boolean?>(null)
     val eventCreated: StateFlow<Boolean?> = _eventCreated

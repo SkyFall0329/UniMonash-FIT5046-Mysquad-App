@@ -23,6 +23,13 @@ class UserProfileViewModel(
         }
     }
 
+    fun updateUser(updatedUser: UserProfileEntity) {
+        viewModelScope.launch {
+            userRepository.createOrUpdateUser(updatedUser)
+            _user.value = updatedUser
+        }
+    }
+
     fun syncUserFromRemote(uid: String) {
         viewModelScope.launch {
             val remoteUser = userRepository.remote.fetchUserById(uid)
