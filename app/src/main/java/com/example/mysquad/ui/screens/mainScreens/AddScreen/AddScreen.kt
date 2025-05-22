@@ -3,6 +3,7 @@ package com.example.mysquad.ui.screens.mainScreens.AddScreen
 import EventRepository
 import android.widget.Toast
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,6 +58,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.compose.ui.platform.LocalFocusManager
 import com.example.mysquad.componets.util.await
+import com.example.mysquad.componets.util.timeStringToSeconds
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
@@ -74,7 +76,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.google.maps.android.compose.rememberCameraPositionState
 import java.time.Instant
 import java.util.UUID
 
@@ -92,10 +93,6 @@ fun AddScreen(modifier: Modifier = Modifier) {
     var eventendtime = remember { mutableStateOf("") }
     var coordinate by remember { mutableStateOf<LatLng?>(null) }
 
-    val singapore = LatLng(1.35, 103.87)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(singapore, 10f)
-    }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
     )
@@ -133,7 +130,7 @@ fun AddScreen(modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.surface
             ) {
                 Text(
-                    text = "Create event",
+                    text = "Create Event",
                     style = MaterialTheme.typography.displayLarge,
                     modifier = Modifier.padding(10.dp)
                 )
@@ -142,7 +139,7 @@ fun AddScreen(modifier: Modifier = Modifier) {
             Row {
                 Box(modifier = Modifier.weight(1f)) {
                     Downregulate(
-                        labelText = "select a type of event",
+                        labelText = "Type of event",
                         states = listOf(
                             "Basketball",
                             "Football",
@@ -169,20 +166,22 @@ fun AddScreen(modifier: Modifier = Modifier) {
             CustomTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = "Please enter the title of the event"
+                label = "Enter the title of the event"
             )
+
+            Spacer(modifier = Modifier.height(5.dp))
 
             CustomTextField(
                 value = desc,
                 onValueChange = { desc = it },
-                label = "please enter the description of the event",
+                label = "Enter the description of the event",
                 modifier = Modifier.height(200.dp)
             )
 
             Row {
                 Box(modifier = Modifier.weight(1f)) {
                     Downregulate(
-                        labelText = "start time",
+                        labelText = "Start time",
                         selectedState = eventstarttime,
                         states = listOf("10:00", "12:00", "13:00", "15:00", "16:00")
                     )
@@ -190,84 +189,59 @@ fun AddScreen(modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.width(10.dp))
                 Box(modifier = Modifier.weight(1f)) {
                     Downregulate(
-                        labelText = "end time",
+                        labelText = "End time",
                         selectedState = eventendtime,
                         states = listOf("14:00", "12:00", "13:00", "15:00", "16:00")
                     )
                 }
             }
 
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
 
-//
-//            系统账号密码
-//            jzhu0106@student.Monash.edu
-//            Zhu12141026@
+                AddressAutocompleteFieldWithLatLng(
+                    initialValue = address,
+                    onAddressSelected = { selectedAddress, latLng ->
+                        address = selectedAddress
+                        coordinate = latLng
+                        Log.d("Address", "Selected: $selectedAddress, LatLng: $latLng")
+                    }
+                )
+            }
 
-            CustomTextField(
-                value = address,
-                onValueChange = { address = it },
-                label = "please enter the address of the event",
-            )
+            coordinate?.let {
+                MapGraph(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    latLng = it
+                )
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
 
-
-//            Box(
-//                contentAlignment = Alignment.Center,
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-////                Image(
-////                    painter = painterResource(id = R.drawable.googlemap),
-////                    contentDescription = "Map preview",
-////                    contentScale = ContentScale.Crop,
-////                    modifier = Modifier
-////                        .fillMaxWidth()
-////                        .height(250.dp)
-////                        .padding(vertical = 20.dp)
-////                )
-//            }
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(250.dp)
-//                    .padding(vertical = 20.dp)
-//            ) {
-//                GoogleMap(
-//                    modifier = Modifier.fillMaxSize(),
-//                    cameraPositionState = cameraPositionState
-//                )
-//            }
-
-
-            Spacer(modifier = Modifier.height(13.dp))
             //按钮区域
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(
-                    onClick = { /* Cancel */ },
-                    modifier = Modifier.width(150.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
-                ) {
-                    Text(
-                        text = "Cancel",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
 
                 Button(
                     onClick = {
                         viewModel.createEvent(EventEntity(
                             eventId = UUID.randomUUID().toString(),
                             eventType = type.value,
-                            eventDate = datePickerState.selectedDateMillis?:0,
+                            eventDate = ((datePickerState.selectedDateMillis)?.div(1000)?.plus(
+                                timeStringToSeconds(eventstarttime.value)
+                            )) ?: 0,
                             eventTitle = title,
                             eventDescription = desc,
                             eventAddress = address ,
-                            eventCoordinates = listOf(singapore.latitude, singapore.longitude),
+                            eventCoordinates = listOf(coordinate?.latitude ?: 0.0, coordinate?.longitude ?: 0.0),
                             eventStartTime = eventstarttime.value,
                             eventEndTime = eventendtime.value,
                             eventHostUserId = FirebaseAuth.getInstance().currentUser?.uid?:"",
@@ -275,6 +249,13 @@ fun AddScreen(modifier: Modifier = Modifier) {
                             eventPendingList = emptyList()
                         ))
                         Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
+                        type.value=""
+                        title= ""
+                        desc= ""
+                        address = ""
+                        coordinate = null
+                        eventstarttime.value = ""
+                        eventendtime.value = ""
                     },
                     modifier = Modifier.width(150.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -283,7 +264,7 @@ fun AddScreen(modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text = "Post",
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -308,15 +289,7 @@ fun CustomTextField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            },
+            label = { Text(label) },
             modifier = Modifier.fillMaxWidth(),
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface
