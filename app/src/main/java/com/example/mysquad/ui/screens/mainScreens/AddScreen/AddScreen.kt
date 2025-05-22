@@ -1,8 +1,13 @@
 package com.example.mysquad.ui.screens.mainScreens.AddScreen
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -19,9 +24,25 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import com.example.mysquad.componets.util.await
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Preview
 @RequiresApi(64)
@@ -31,6 +52,7 @@ fun AddScreen(modifier: Modifier = Modifier) {
     var desc by remember { mutableStateOf("") }
     var num by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
+    var coordinate by remember { mutableStateOf<LatLng?>(null) }
 
     val singapore = LatLng(1.35, 103.87)
     val cameraPositionState = rememberCameraPositionState {
@@ -92,19 +114,14 @@ fun AddScreen(modifier: Modifier = Modifier) {
                     .padding(2.dp)
                     .background(MaterialTheme.colorScheme.surface)
             ) {
-                OutlinedTextField(
-                    value = address,
-                    onValueChange = { address = it },
-                    label = {
-                        Text(
-                            text = "Please enter address of the event",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp)
-                        .padding(vertical = 8.dp)
+
+                AddressAutocompleteFieldWithLatLng(
+                    initialValue = address,
+                    onAddressSelected = { selectedAddress, latLng ->
+                        address = selectedAddress
+                        coordinate = latLng
+                        Log.d("Address", "Selected: $selectedAddress, LatLng: $latLng")
+                    }
                 )
             }
 
@@ -155,9 +172,14 @@ fun AddScreen(modifier: Modifier = Modifier) {
 //                    cameraPositionState = cameraPositionState
 //                )
 //            }
-            MelbourneMap(modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp))
+            coordinate?.let {
+                MapGraph(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    latLng = it
+                )
+            }
 
 
             //按钮区域
@@ -229,25 +251,126 @@ fun CustomTextField(
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
-fun MelbourneMap(modifier: Modifier) {
-    val melbourne = LatLng(-37.8136, 144.9631)
+fun MapGraph(modifier: Modifier = Modifier, latLng: LatLng) {
+    val cameraPositionState = rememberCameraPositionState()
 
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(melbourne, 12f)
+    LaunchedEffect(latLng) {
+        cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, 14f))
     }
 
-    val markerState = remember { MarkerState(position = melbourne) }
-
     GoogleMap(
-
-        modifier = Modifier.fillMaxSize().height(200.dp),
+        modifier = modifier
+            .fillMaxWidth(),
         cameraPositionState = cameraPositionState
     ) {
         Marker(
-            state = markerState,
-            title = "Melbourne",
-            snippet = "The capital of Victoria"
+            state = MarkerState(position = latLng),
+            title = "Selected Location"
         )
     }
 }
+
+
+@Composable
+fun AddressAutocompleteFieldWithLatLng(
+    modifier: Modifier = Modifier,
+    initialValue: String = "",
+    labelText: String = "Enter event address",
+    onAddressSelected: (address: String, latLng: LatLng?) -> Unit
+) {
+    val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    var input by remember { mutableStateOf(initialValue) }
+    var suggestions by remember { mutableStateOf<List<AutocompletePrediction>>(emptyList()) }
+    val queryFlow = remember { MutableStateFlow("") }
+
+    LaunchedEffect(Unit) {
+        queryFlow
+            .debounce(300)
+            .collectLatest { query ->
+                if (query.isBlank()) {
+                    suggestions = emptyList()
+                    return@collectLatest
+                }
+
+                val placesClient = Places.createClient(context)
+                val request = FindAutocompletePredictionsRequest.builder()
+                    .setQuery(query)
+                    .build()
+
+                try {
+                    val response = placesClient.findAutocompletePredictions(request).await()
+                    suggestions = response.autocompletePredictions
+                } catch (e: Exception) {
+                    suggestions = emptyList()
+                }
+            }
+    }
+
+    Box(modifier) {
+        Column {
+            OutlinedTextField(
+                value = input,
+                onValueChange = {
+                    input = it
+                    queryFlow.value = it
+                },
+                label = { Text(labelText) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            )
+
+            if (suggestions.isNotEmpty()) {
+                Card(
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 200.dp)
+                        .padding(horizontal = 4.dp)
+                ) {
+                    LazyColumn {
+                        items(suggestions) { prediction ->
+                            Text(
+                                text = prediction.getFullText(null).toString(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        val selectedAddress = prediction.getFullText(null).toString()
+                                        val placeId = prediction.placeId
+                                        input = selectedAddress
+                                        suggestions = emptyList()
+                                        focusManager.clearFocus()
+
+                                        // Fetch LatLng
+                                        val placesClient = Places.createClient(context)
+                                        val placeRequest = FetchPlaceRequest.builder(
+                                            placeId,
+                                            listOf(Place.Field.LAT_LNG)
+                                        ).build()
+
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            val latLng = try {
+                                                val response = placesClient.fetchPlace(placeRequest).await()
+                                                response.place.latLng
+                                            } catch (e: Exception) {
+                                                null
+                                            }
+
+                                            withContext(Dispatchers.Main) {
+                                                onAddressSelected(selectedAddress, latLng)
+                                            }
+                                        }
+                                    }
+                                    .padding(12.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

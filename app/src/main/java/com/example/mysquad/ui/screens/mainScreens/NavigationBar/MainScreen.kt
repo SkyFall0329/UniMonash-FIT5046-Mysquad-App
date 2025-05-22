@@ -139,17 +139,6 @@ fun MainScreen(
             }
             composable(Screen.ProfileScreen.route) {
                 ProfileScreen(
-                    currentUser = UserProfile(
-                        userID = "35195967",
-                        userName = "Letao Wang",
-                        gender = "Male",
-                        userEmail = "letao.wang@student.monash.edu",
-                        faculty = "Faculty of Information Technology",
-                        degree = "Master",
-                        birthday = "1998-06-15",
-                        favoriteSports = "Basketball, Running, Yoga",
-                        bio = "Hi! I'm passionate about tech and fitness. I enjoy coding and leading group workouts!"
-                    ),
                     viewModel = authViewModel,
                     navController = navController,
                     rootNavController = rootNavController,

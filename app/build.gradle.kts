@@ -92,4 +92,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.firebase.firestore.ktx.v24100)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.places)
+    implementation(libs.places.compose)
+    implementation (libs.kotlinx.coroutines.play.services.v164)
 }

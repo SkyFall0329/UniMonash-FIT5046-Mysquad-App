@@ -43,7 +43,6 @@ fun DisplayDatePicker(
         value = value,
         onValueChange = {},
         readOnly = true,
-        label = { Text("Birthday") },
         modifier = modifier
             .fillMaxWidth()
             .clickable { showDatePicker = true },
