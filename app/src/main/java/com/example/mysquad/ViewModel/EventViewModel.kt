@@ -1,9 +1,11 @@
 package com.example.mysquad.ViewModel
 
 import EventRepository
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mysquad.data.localRoom.entity.EventEntity
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,6 +47,10 @@ class EventViewModel(
         }
     }
 
+    fun getAllEvents(): Flow<List<EventEntity>> {
+        return eventRepository.getRemoteEvents()
+    }
+
     fun syncFromFirebase() {
         viewModelScope.launch {
             try {
@@ -56,5 +62,19 @@ class EventViewModel(
 
     fun resetStatus() {
         _eventCreated.value = null
+    }
+
+    suspend fun getPostDetail(postId: String?): EventEntity? {
+        return eventRepository.getPostDetail(postId)
+    }
+
+    fun joinEvent(value: EventEntity) {
+        viewModelScope.launch {
+            try {
+                eventRepository.joinEvent(value)
+            } catch (e: Exception) {
+                Log.e("EventViewModel", "Error syncing events", e)
+            }
+        }
     }
 }

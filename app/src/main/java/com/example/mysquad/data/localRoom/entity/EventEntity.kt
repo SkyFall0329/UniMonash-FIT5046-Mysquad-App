@@ -17,5 +17,5 @@ data class EventEntity(
     val eventEndTime: String = "",
     val eventHostUserId: String = "",
     val eventJoinList: List<String> = emptyList(), //already joined
-    val eventPendingList: List<String> = emptyList()//applicant
+    var eventPendingList: List<String> = emptyList()//applicant
 )

@@ -20,6 +20,19 @@ class EventRepository(
     }
 
     fun getLocalEvents(): Flow<List<EventEntity>> = eventDao.getAllEvents()
+    fun getRemoteEvents() = remote.fetchAllEvents()
+
+    suspend fun getPostDetail(postId: String?): EventEntity? {
+        if (postId != null) {
+            return remote.getPostDetail(postId)
+        }
+        return null
+
+    }
+
+    suspend fun joinEvent(value: EventEntity) {
+        remote.uploadEvent(value)
+    }
 
     fun getRelevantEventsAsFlow(userId: String): Flow<List<EventEntity>> {
         val now = System.currentTimeMillis() / 1000

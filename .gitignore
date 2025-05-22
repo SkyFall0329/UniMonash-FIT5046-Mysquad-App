@@ -13,6 +13,21 @@
 .externalNativeBuild
 .cxx
 local.properties
+import android.os.Build
+/.idea/deploymentTargetSelector.xml
+
+# Android Studio/IntelliJ project files
+.idea/
+*.iml
+
+# Specific ignored files in .idea (optional, if you only want to ignore some)
+.idea/inspectionProfiles/
+.idea/assetWizardSettings.xml
+.idea/deploymentTargetSelector.xml
+.idea/gradle.xml
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/misc.xml
 
 # Android Studio/IntelliJ project files
 .idea/
