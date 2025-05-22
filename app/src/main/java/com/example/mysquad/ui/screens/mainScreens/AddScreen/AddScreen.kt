@@ -3,7 +3,6 @@ package com.example.mysquad.ui.screens.mainScreens.AddScreen
 import EventRepository
 import android.widget.Toast
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -32,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.mysquad.ViewModel.EventViewModel
 import com.example.mysquad.ViewModel.factory.EventViewModelFactory
 import com.example.mysquad.componets.ashley.DisplayDatePicker
@@ -54,9 +55,6 @@ import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import com.example.mysquad.componets.util.await
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -145,12 +143,26 @@ fun AddScreen(modifier: Modifier = Modifier) {
                 Box(modifier = Modifier.weight(1f)) {
                     Downregulate(
                         labelText = "select a type of event",
-                        states = listOf("Basketball", "Football", "Volleyball", "Badminton", "Table Tennis", "Tennis", "Swimming", "Aerobics")
+                        states = listOf(
+                            "Basketball",
+                            "Football",
+                            "Volleyball",
+                            "Badminton",
+                            "Table Tennis",
+                            "Tennis",
+                            "Swimming",
+                            "Aerobics"
+                        ),
+                        modifier = modifier,
+                        selectedState = type
                     )
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Box(modifier = Modifier.weight(1f)) {
-                    DisplayDatePicker()
+                    DisplayDatePicker(
+                        modifier = modifier,
+                        datePickerState = datePickerState
+                    )
                 }
             }
 
@@ -185,6 +197,12 @@ fun AddScreen(modifier: Modifier = Modifier) {
                 }
             }
 
+
+//
+//            系统账号密码
+//            jzhu0106@student.Monash.edu
+//            Zhu12141026@
+
             CustomTextField(
                 value = address,
                 onValueChange = { address = it },
@@ -218,9 +236,6 @@ fun AddScreen(modifier: Modifier = Modifier) {
 //                    cameraPositionState = cameraPositionState
 //                )
 //            }
-            MelbourneMap(modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp))
 
 
             Spacer(modifier = Modifier.height(13.dp))

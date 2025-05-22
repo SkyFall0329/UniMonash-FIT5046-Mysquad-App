@@ -2,6 +2,7 @@ import com.example.mysquad.data.localRoom.dao.EventDao
 import com.example.mysquad.data.localRoom.entity.EventEntity
 import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class EventRepository(
     private val eventDao: EventDao,
