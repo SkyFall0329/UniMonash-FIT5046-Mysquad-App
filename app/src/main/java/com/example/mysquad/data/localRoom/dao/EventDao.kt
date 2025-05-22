@@ -23,6 +23,8 @@ interface EventDao {
     @Delete
     suspend fun deleteEvent(event: EventEntity)
 
+    @Query("DELETE FROM events")
+    suspend fun clearAllEvents()
 
     @Query(
         """

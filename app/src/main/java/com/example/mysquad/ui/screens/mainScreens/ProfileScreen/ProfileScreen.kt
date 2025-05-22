@@ -75,9 +75,11 @@ fun ProfileScreen(
 
 
     var isEditing by remember { mutableStateOf(false) }
-    LaunchedEffect(user) {
-        if (!isEditing) {
+    var shouldShowToast by remember { mutableStateOf(false) }
+    LaunchedEffect(shouldShowToast) {
+        if (shouldShowToast) {
             Toast.makeText(context, "Profile saved!", Toast.LENGTH_SHORT).show()
+            shouldShowToast = false  // ✅ 触发后重置
         }
     }
     var username by remember(user) { mutableStateOf(user?.userName ?: "") }
@@ -124,6 +126,7 @@ fun ProfileScreen(
                                 userUpdatedAt = System.currentTimeMillis()
                             )
                             profileViewModel.updateUser(updatedUser)
+                            shouldShowToast = true
                         }
                     }
                     isEditing = !isEditing

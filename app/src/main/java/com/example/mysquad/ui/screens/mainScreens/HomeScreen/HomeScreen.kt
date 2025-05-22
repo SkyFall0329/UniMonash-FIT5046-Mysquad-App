@@ -80,6 +80,7 @@ fun getCurrentLocation(context: Context, onLocationReceived: (Location) -> Unit)
 @Composable
 fun HomeScreen() {
     val userId = FirebaseAuth.getInstance().currentUser?.uid
+
     val viewModel: WeatherViewModel = viewModel()
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
@@ -89,15 +90,15 @@ fun HomeScreen() {
     val eventViewModel: EventViewModel = viewModel(
         factory = EventViewModelFactory(eventRepository)
     )
-
-    val relevantEventsState = eventViewModel.relevantEvents.collectAsState(initial = emptyList())
-    val relevantEvents = relevantEventsState.value
-
-
     LaunchedEffect(Unit) {
         eventViewModel.syncFromFirebase()
         eventViewModel.observeRelevantEvents(userId.toString())
     }
+
+    val relevantEventsState = eventViewModel.relevantEvents.collectAsState()
+    val relevantEvents = relevantEventsState.value
+
+
 
     LaunchedEffect(true) {
         getCurrentLocation(context) {
