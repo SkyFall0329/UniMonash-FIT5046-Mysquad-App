@@ -1,5 +1,8 @@
 package com.example.mysquad.firebase
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -55,16 +58,17 @@ class AuthRepository(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun signInWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         val result = auth.signInWithCredential(credential).await()
-        // if this is their first sign-in, create a Firestore profile
-        if (result.additionalUserInfo?.isNewUser == true) {
-            val user = auth.currentUser!!
-            val uid = user.uid
-            val email = user.email ?: ""
-            val username = user.displayName ?: ""
-            userRepo.createUserProfile(uid, username, email)
+
+        val user = auth.currentUser
+        Log.d("GOOGLE_LOGIN", "Firebase Login Success: ${user?.email}")
+
+        if (result.additionalUserInfo?.isNewUser == true && user != null) {
+            Log.d("GOOGLE_LOGIN", "New use writing into Firestore")
+            userRepo.createUserProfile(user.uid, user.displayName ?: "New User", user.email ?: "")
         }
     }
 
