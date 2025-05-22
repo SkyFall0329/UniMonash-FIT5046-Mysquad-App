@@ -4,8 +4,10 @@ import EventRepository
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import android.os.Build
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,7 +47,7 @@ import com.example.mysquad.data.localRoom.database.AppDatabase
 import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
-import androidx.compose.foundation.lazy.items
+import com.example.mysquad.componets.util.formatUnixSeconds
 
 
 @SuppressLint("MissingPermission")
@@ -77,6 +79,7 @@ fun getCurrentLocation(context: Context, onLocationReceived: (Location) -> Unit)
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen() {
     val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -162,11 +165,16 @@ fun HomeScreen() {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-//                itemsIndexed(sampleActivities) { index, activity ->
-//                    ActivityCard(activity = activity, index = index)
-//                }
-                items(relevantEvents) { event ->
-                    Text(text = event.eventTitle)
+                itemsIndexed(relevantEvents) { index, event ->
+
+                    // ✅ 转换 EventEntity → Activity（你定义的数据类）
+                    val activity = Activity(
+                        title = event.eventTitle,
+                        time = formatUnixSeconds(event.eventDate), // 将秒转成格式化时间
+                        isHost = event.eventHostUserId == userId
+                    )
+
+                    ActivityCard(activity = activity, index = index)
                 }
             }
         } else {
