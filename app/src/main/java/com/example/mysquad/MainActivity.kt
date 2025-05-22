@@ -19,6 +19,7 @@ import com.example.mysquad.ui.theme.ThemeMode
 import android.Manifest
 import com.example.mysquad.ViewModel.UserProfileViewModel
 import com.example.mysquad.navigation.RootNavGraph
+import com.google.android.libraries.places.api.Places
 
 
 class MainActivity : ComponentActivity() {
@@ -26,7 +27,7 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(64) // 你的项目如果确实需要API 64，可保留；否则可能是误加
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Places.initialize(applicationContext, "AIzaSyCoKwYA8ZnmXRFhKBiysdAxH7wKaTYj5mM")
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
