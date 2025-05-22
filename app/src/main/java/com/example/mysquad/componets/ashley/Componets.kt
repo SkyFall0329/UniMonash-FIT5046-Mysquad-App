@@ -128,8 +128,8 @@ fun Downregulate(
                     focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                     unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent
+                    unfocusedIndicatorColor = Color.Black,
+                    focusedIndicatorColor = Color.Black
                 ),
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)

@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mysquad.ViewModel.EventViewModel
@@ -44,7 +45,10 @@ import com.example.mysquad.ViewModel.factory.EventViewModelFactory
 import com.example.mysquad.data.localRoom.database.AppDatabase
 import com.example.mysquad.data.localRoom.entity.EventEntity
 import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
+import com.example.mysquad.navigation.Screen
+import com.example.mysquad.ui.screens.mainScreens.AddScreen.MapGraph
 import com.google.firebase.auth.FirebaseAuth
+import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun GetPostDetail(
@@ -60,6 +64,7 @@ fun GetPostDetail(
     val remote = EventRemoteDataSource()
     val eventRepository = EventRepository(eventDao, remote)
 
+
     val viewModel: EventViewModel = viewModel(
         factory = EventViewModelFactory(eventRepository)
     )
@@ -71,6 +76,14 @@ fun GetPostDetail(
         if (eventEntity != null) {
             eventEntityState.value = eventEntity
         }
+    }
+    val lat = eventEntityState.value.eventCoordinates.getOrNull(0)
+    val lng = eventEntityState.value.eventCoordinates.getOrNull(1)
+
+    val location = if (lat != null && lng != null) {
+        LatLng(lat, lng)
+    } else {
+        LatLng( -37.8136,  144.9631) // 或者默认值 LatLng(0.0, 0.0)
     }
 
     val verticalScrollState = rememberScrollState()
@@ -97,7 +110,7 @@ fun GetPostDetail(
                     .padding(5.dp)
             ) {
                 Text(
-                    text = eventEntityState.value.eventAddress,
+                    text = eventEntityState.value.eventTitle,
                     fontWeight = FontWeight.Bold,
                     fontSize = 35.sp,
                     color = MaterialTheme.colorScheme.primary,
@@ -134,16 +147,12 @@ fun GetPostDetail(
             }
 
             // Google map image
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
-                Image(
-                    painter = painterResource(id = R.drawable.googlemap),
-                    contentDescription = "Google Map",
-                    contentScale = ContentScale.Crop,
+                MapGraph(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .height(200.dp),
+                    latLng = location
                 )
-            }
 
             // Join button
             ElevatedButton(
