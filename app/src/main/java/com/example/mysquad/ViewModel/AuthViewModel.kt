@@ -1,5 +1,7 @@
 package com.example.mysquad.ViewModel
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,7 +34,8 @@ class AuthViewModel(
     fun register(email:String,pwd:String,username:String) = launch { repo.signUp(email, pwd,username) }
     fun login(email: String, pwd: String) = launch { repo.login(email, pwd) }
     fun resetPassword(email: String) = launch { repo.resetPassword(email) }
-    fun  signInWithGoogle(idToken: String) = launch { repo.signInWithGoogle(idToken) }
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun signInWithGoogle(idToken: String) = launch { repo.signInWithGoogle(idToken) }
     fun signOut() {
         repo.signOut()
         uiState = AuthUiState.Idle

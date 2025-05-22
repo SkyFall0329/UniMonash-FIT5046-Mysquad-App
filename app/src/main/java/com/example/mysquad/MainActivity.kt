@@ -17,8 +17,10 @@ import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.ui.theme.MySquadTheme
 import com.example.mysquad.ui.theme.ThemeMode
 import android.Manifest
+import android.util.Log
 import com.example.mysquad.ViewModel.UserProfileViewModel
 import com.example.mysquad.navigation.RootNavGraph
+import java.security.MessageDigest
 
 
 class MainActivity : ComponentActivity() {

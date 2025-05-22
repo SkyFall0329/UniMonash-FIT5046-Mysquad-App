@@ -1,9 +1,13 @@
 package com.example.mysquad.ui.screens.authScreens
 
+import android.app.Activity
 import android.app.Activity.RESULT_OK
+import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -91,6 +95,7 @@ import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun LoginScreenWithAnimation(
@@ -111,23 +116,34 @@ fun LoginScreenWithAnimation(
     val googleLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val credentials = oneTapClient.getSignInCredentialFromIntent(result.data)
-            val idToken = credentials.googleIdToken
-            if (idToken != null) {
-                coroutineScope.launch {
-                    try {
-                        viewModel.signInWithGoogle(idToken)
-                        navController.navigate(Screen.MainGraph.route) {
-                            popUpTo("login") { inclusive = true }
+        if (result.resultCode == Activity.RESULT_OK) {
+            try {
+                val credentials = oneTapClient.getSignInCredentialFromIntent(result.data)
+                val idToken = credentials.googleIdToken
+                Log.d("TOKEN", "🔑 Google ID Token = $idToken")
+
+                if (idToken != null) {
+                    coroutineScope.launch {
+                        try {
+                            Log.d("GOOGLE_LOGIN", "Calling viewModel.signInWithGoogle()")
+                            viewModel.signInWithGoogle(idToken)
+                            Log.d("GOOGLE_LOGIN", "Firebase login succeeded")
+                            navController.navigate(Screen.MainGraph.route) {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        } catch (e: Exception) {
+                            Log.e("GOOGLE_LOGIN", "Firebase login failed: ${e.message}", e)
+
                         }
-                    } catch (e: Exception) {
-                        snackbarHostState.showSnackbar("Google sign-in failed: ${e.message}")
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("GOOGLE_LOGIN", "Credential fetch failed", e)
             }
         }
     }
+
+
 
     LaunchedEffect(uiState) {
         when (uiState) {
@@ -216,23 +232,28 @@ fun LoginScreenWithAnimation(
                     onClick = {
                         coroutineScope.launch {
                             try {
-                                val result = oneTapClient.beginSignIn(
-                                    BeginSignInRequest.builder()
-                                        .setGoogleIdTokenRequestOptions(
-                                            BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                                                .setSupported(true)
-                                                .setServerClientId("83325044758-i90cpfgltn3d7ehhpmul862sgo0a3v6k.apps.googleusercontent.com")
-                                                .setFilterByAuthorizedAccounts(false)
-                                                .build()
-                                        )
-                                        .build()
-                                ).await()
+                                val signInRequest = BeginSignInRequest.builder()
+                                    .setGoogleIdTokenRequestOptions(
+                                        BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                                            .setSupported(true)
+                                            .setServerClientId("83325044758-sl8r0ishbqlgp7h3i6obl63e2csr14ol.apps.googleusercontent.com")
+                                            .setFilterByAuthorizedAccounts(false) // 允许新用户登录
+                                            .build()
+                                    )
+                                    .setAutoSelectEnabled(false) // 手动选择账户
+                                    .build()
 
+                                val result = oneTapClient.beginSignIn(signInRequest).await()
+
+                                // 启动 Google 登录
                                 googleLauncher.launch(
                                     IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
                                 )
                             } catch (e: Exception) {
-                                snackbarHostState.showSnackbar("Google Sign-in error: ${e.message}")
+                                Log.e("GoogleSignIn", "Google Sign in Sign-In Failed", e)
+                                snackbarHostState.showSnackbar(
+                                    message = "Google : ${e.message ?: "unknown error"}"
+                                )
                             }
                         }
                     },
