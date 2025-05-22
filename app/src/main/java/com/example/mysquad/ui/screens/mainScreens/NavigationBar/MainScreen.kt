@@ -93,7 +93,7 @@ fun MainScreen(
             composable(BottomBarItem.Home.route) { HomeScreen() }
             composable(BottomBarItem.Square.route) { SquareScreen(navController) }
             composable(Screen.PostDetail.route) {
-                GetPostDetail(onBackClick = { navController.popBackStack() })
+                GetPostDetail(onBackClick = { navController.popBackStack() }, navController = navController)
             }
             composable(BottomBarItem.Add.route) { AddScreen() }
             composable(Screen.TodoScreen.route) {

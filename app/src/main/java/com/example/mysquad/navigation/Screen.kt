@@ -14,7 +14,7 @@ sealed class Screen(val route: String) {
     object MainGraph : Screen("main_graph")
     object HomeScreen : Screen("home_screen")
     object SquareScreen : Screen("square_screen")
-    object PostDetail : Screen("post_detail")
+    object PostDetail : Screen("post_detail/{eventId}") { fun postId(eventId: String) = "post_detail/$eventId" }
     object AddScreen : Screen("add_screen")
     object TodoScreen : Screen("todo_screen")
     object ProfileScreen : Screen("profile_screen")

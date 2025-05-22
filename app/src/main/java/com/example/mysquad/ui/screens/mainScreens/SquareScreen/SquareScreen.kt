@@ -1,7 +1,6 @@
 package com.example.mysquad.ui.screens.mainScreens.SquareScreen
 
-import android.icu.text.SimpleDateFormat
-import android.os.Build
+import EventRepository
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -9,11 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -21,23 +17,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
 import java.time.Instant
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 import com.example.mysquad.componets.ashley.Downregulate
 import com.example.mysquad.navigation.Screen
 import androidx.compose.material3.MaterialTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mysquad.ViewModel.EventViewModel
+import com.example.mysquad.ViewModel.factory.EventViewModelFactory
+import com.example.mysquad.componets.ashley.DisplayDatePicker
+import com.example.mysquad.data.localRoom.database.AppDatabase
+import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(64)
 @Composable
 fun SquareScreen(navController: NavController, modifier: Modifier = Modifier) {
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = Instant.now().toEpochMilli()
+    )
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 🟧 Page Title
+        //Page Title
         Surface(
             shape = RoundedCornerShape(30.dp),
             modifier = Modifier
@@ -55,7 +59,7 @@ fun SquareScreen(navController: NavController, modifier: Modifier = Modifier) {
             )
         }
 
-        // 🟦 Filter row: event type + date picker
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -63,6 +67,7 @@ fun SquareScreen(navController: NavController, modifier: Modifier = Modifier) {
             Box(modifier = Modifier.weight(1f)) {
                 Downregulate(
                     labelText = "Select event type",
+                    selectedState = remember { mutableStateOf("") },
                     states = listOf(
                         "Basketball", "Football", "Volleyball", "Badminton",
                         "Table Tennis", "Tennis", "Swimming", "Aerobics"
@@ -71,99 +76,66 @@ fun SquareScreen(navController: NavController, modifier: Modifier = Modifier) {
             }
             Spacer(modifier = Modifier.width(10.dp))
             Box(modifier = Modifier.weight(1f)) {
-                DisplayDatePicker()
+                DisplayDatePicker(datePickerState = datePickerState)
             }
         }
 
-        // 📋 Event List
+
         EventLazyColumn(navController)
     }
 }
 
 
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DisplayDatePicker(modifier: Modifier = Modifier) {
-    val calendar = Calendar.getInstance()
-    var selectedDateText by remember { mutableStateOf("") }
-    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = Instant.now().toEpochMilli()
-    )
-    var showDatePicker by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableLongStateOf(calendar.timeInMillis) }
-
-    Column(modifier = modifier.padding(vertical = 1.dp)) {
-        OutlinedTextField(
-            value = selectedDateText,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Select date") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDatePicker = true },
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = "Open date picker",
-                    modifier = Modifier
-                        .clickable { showDatePicker = true }
-                        .size(36.dp)
-                )
-            }
-        )
-
-        if (showDatePicker) {
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showDatePicker = false
-                        selectedDate = datePickerState.selectedDateMillis ?: selectedDate
-                        selectedDateText = formatter.format(Date(selectedDate))
-                    }) {
-                        Text("OK")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
-                        Text("Cancel")
-                    }
-                }
-            ) {
-                DatePicker(state = datePickerState)
-            }
-        }
-    }
-}
-
 
 @Composable
 fun EventLazyColumn(navController: NavController) {
-    val events = remember {
-        mutableStateListOf(
-            "677 Basketball", "Title 1 Basketball", "Local Game",
-            "Title 3 - Weekly Match", "Friendly Match", "Open Practice", "Evening Session"
-        )
-    }
+    val context = LocalContext.current
+    // 手动构造依赖
+    val db = remember { AppDatabase.getInstance(context) }
+    val eventDao = db.eventDao()
+    val remote = EventRemoteDataSource()
+    val eventRepository = EventRepository(eventDao, remote)
 
-    val participantInfo = remember {
-        mutableStateListOf("[3/7]", "[3/7]", "[3/7]", "[3/6]", "[5/12]", "[3/7]", "[3/7]")
-    }
+    val viewModel: EventViewModel = viewModel(
+        factory = EventViewModelFactory(eventRepository)
+    )
+
+    // 插入数据
+//    viewModel.insertEvent(
+//        Event(2,EventType.Yoga,"1231","1231","123","1231",
+//        "1231", emptyList(), LocalDateTime.now(),LocalDateTime.now(),123,
+//            123,123, User("123","123"),
+//            listOf(User("123","123")), LocalDateTime.now(), LocalDateTime.now())
+//    )
+    // 删除event数据
+//    viewModel.deleteEvent(Event(1,EventType.Yoga,"1231","1231","123","1231",
+//        "1231", emptyList(), LocalDateTime.now(),LocalDateTime.now(),123,
+//            123,123, User("123","123"),
+//            listOf(User("123","123")), LocalDateTime.now(), LocalDateTime.now()))
+//
+//    viewModel.deleteEvent(Event(2,EventType.Yoga,"1231","1231","123","1231",
+//        "1231", emptyList(), LocalDateTime.now(),LocalDateTime.now(),123,
+//        123,123, User("123","123"),
+//        listOf(User("123","123")), LocalDateTime.now(), LocalDateTime.now()))
+//
+//    viewModel.deleteEvent(Event(3,EventType.Yoga,"1231","1231","123","1231",
+//        "1231", emptyList(), LocalDateTime.now(),LocalDateTime.now(),123,
+//        123,123, User("123","123"),
+//        listOf(User("123","123")), LocalDateTime.now(), LocalDateTime.now()))
+
+//    LaunchedEffect(Unit) {
+//        viewModel.syncFromFirebase()
+//    }
+    // 读取event数据
+    val eventList by viewModel.getAllEvents().collectAsState(emptyList())
 
     Column(modifier = Modifier.padding(vertical = 16.dp)) {
         LazyColumn {
-            items(events.size) { index ->
+            items(eventList.size) { index ->
                 SportsEventCard(
-                    eventTitle = events[index],
-                    num = participantInfo[index],
-                    onClick = { navController.navigate(Screen.PostDetail.route) }
+                    eventTitle = eventList[index].eventTitle,
+                    onClick = { navController.navigate(Screen.PostDetail.postId(eventList[index].eventId)) }
                 )
             }
         }
@@ -174,7 +146,6 @@ fun EventLazyColumn(navController: NavController) {
 fun SportsEventCard(
     modifier: Modifier = Modifier,
     eventTitle: String,
-    num: String,
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -203,15 +174,6 @@ fun SportsEventCard(
             modifier = Modifier
                 .padding(horizontal = 10.dp, vertical = 30.dp)
                 .weight(1.0f),
-        )
-
-        Text(
-            text = num,
-            style = MaterialTheme.typography.titleMedium.copy(
-                color = Color.Black,
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 30.dp),
         )
     }
 }

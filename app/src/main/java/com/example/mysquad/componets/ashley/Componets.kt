@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -21,7 +22,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -32,41 +32,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.MutableState
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DisplayDatePicker(modifier: Modifier = Modifier) {
+fun DisplayDatePicker(modifier: Modifier = Modifier, datePickerState: DatePickerState) {
     val calendar = Calendar.getInstance()
-    var birthday by remember { mutableStateOf("") }
+    var selectedDateText by remember { mutableStateOf("") }
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = Instant.now().toEpochMilli()
-    )
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableLongStateOf(calendar.timeInMillis) }
 
-
-    Column(modifier = Modifier.padding(vertical = 1.dp)) {
+    Column(modifier = modifier.padding(vertical = 1.dp)) {
         OutlinedTextField(
-            value = birthday,
+            value = selectedDateText,
             onValueChange = {},
             readOnly = true,
-            label = { Text("select date") },
+            label = { Text("Select date") },
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { showDatePicker = true },
-            //0xFFFFE4D6
-            colors = TextFieldDefaults.colors(Color(0xFFFFECDB)),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.DateRange,
-                    contentDescription = "Select Date",
+                    contentDescription = "Open date picker",
                     modifier = Modifier
                         .clickable { showDatePicker = true }
                         .size(36.dp)
@@ -74,35 +73,27 @@ fun DisplayDatePicker(modifier: Modifier = Modifier) {
             }
         )
 
-
         if (showDatePicker) {
             DatePickerDialog(
-                onDismissRequest = {
-                    showDatePicker = false
-                },
+                onDismissRequest = { showDatePicker = false },
                 confirmButton = {
                     TextButton(onClick = {
                         showDatePicker = false
-                        selectedDate = datePickerState.selectedDateMillis!!
-                        birthday = " ${formatter.format(Date(selectedDate))}"
+                        selectedDate = datePickerState.selectedDateMillis ?: selectedDate
+                        selectedDateText = formatter.format(Date(selectedDate))
                     }) {
-                        Text(text = "OK")
+                        Text("OK")
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = {
-                        showDatePicker = false
-                    }) {
-                        Text(text = "Cancel")
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text("Cancel")
                     }
                 }
-            ) //end of dialog
-            { //still column scope
-                DatePicker(
-                    state = datePickerState
-                )
+            ) {
+                DatePicker(state = datePickerState)
             }
-        }// end of if
+        }
     }
 }
 
@@ -111,10 +102,10 @@ fun DisplayDatePicker(modifier: Modifier = Modifier) {
 fun Downregulate(
     labelText: String,
     states: List<String>,
+    selectedState: MutableState<String>,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedState = remember { mutableStateOf(states[0]) }
 
     Column(modifier = modifier) {
         ExposedDropdownMenuBox(
@@ -128,7 +119,9 @@ fun Downregulate(
                     .focusProperties { canFocus = false },
                 readOnly = true,
                 value = selectedState.value,
-                onValueChange = {},
+                onValueChange = {
+                    selectedState.value = it
+                },
                 label = { Text(text = labelText) },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,

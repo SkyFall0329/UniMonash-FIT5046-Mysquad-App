@@ -1,5 +1,6 @@
 package com.example.mysquad.ui.screens.mainScreens.SquareScreen
 
+import EventRepository
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,13 +34,45 @@ import androidx.compose.ui.unit.sp
 import com.example.mysquad.R
 import com.example.mysquad.componets.larry.TopBarWithBack
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.mysquad.ViewModel.EventViewModel
+import com.example.mysquad.ViewModel.factory.EventViewModelFactory
+import com.example.mysquad.data.localRoom.database.AppDatabase
+import com.example.mysquad.data.localRoom.entity.EventEntity
+import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun GetPostDetail(
     modifier: Modifier = Modifier,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    navController: NavController
 ) {
+    val postId = navController.currentBackStackEntry?.arguments?.getString("eventId")
     val context = LocalContext.current
+    // 手动构造依赖
+    val db = remember { AppDatabase.getInstance(context) }
+    val eventDao = db.eventDao()
+    val remote = EventRemoteDataSource()
+    val eventRepository = EventRepository(eventDao, remote)
+
+    val viewModel: EventViewModel = viewModel(
+        factory = EventViewModelFactory(eventRepository)
+    )
+    val eventEntityState = remember { mutableStateOf<EventEntity>(EventEntity()) }
+
+    LaunchedEffect(postId) {
+        val eventEntity = viewModel.getPostDetail(postId)
+
+        if (eventEntity != null) {
+            eventEntityState.value = eventEntity
+        }
+    }
+
     val verticalScrollState = rememberScrollState()
 
     Scaffold(
@@ -64,7 +97,7 @@ fun GetPostDetail(
                     .padding(5.dp)
             ) {
                 Text(
-                    text = "xxytfootballtime~",
+                    text = eventEntityState.value.eventAddress,
                     fontWeight = FontWeight.Bold,
                     fontSize = 35.sp,
                     color = MaterialTheme.colorScheme.primary,
@@ -75,11 +108,10 @@ fun GetPostDetail(
 
             // Section Blocks
             listOf(
-                "Start Time：" to "2025.05.25 15:00",
-                "End Time：" to "2025.05.25 17:00",
-                "Activity brief：" to "Join us forand make n – come play, stay active, and make new friends!",
-                "Headcount：" to "7/12",
-                "Address：" to "Wellington Rd, Clayton VIC 3800"
+                "Start Time：" to eventEntityState.value.eventStartTime,
+                "End Time：" to eventEntityState.value.eventEndTime,
+                "Description：" to eventEntityState.value.eventDescription,
+                "Address：" to eventEntityState.value.eventAddress
             ).forEach { (label, content) ->
                 Row(
                     modifier = Modifier
@@ -89,7 +121,7 @@ fun GetPostDetail(
                 ) {
                     Text(
                         text = label,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1.2f),
                         style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     )
                     Text(
@@ -116,7 +148,21 @@ fun GetPostDetail(
             // Join button
             ElevatedButton(
                 onClick = {
-                    Toast.makeText(context, "This is an event", Toast.LENGTH_SHORT).show()
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid
+                    if (userId == null || userId == "") {
+                        return@ElevatedButton
+                    }
+                    if (eventEntityState.value.eventJoinList.contains(userId)) {
+                        Toast.makeText(context, "You have already joined this event", Toast.LENGTH_SHORT).show()
+                        return@ElevatedButton
+                    }
+                    if (eventEntityState.value.eventPendingList.contains(userId)) {
+                        Toast.makeText(context, "You have already applied to join this event", Toast.LENGTH_SHORT).show()
+                        return@ElevatedButton
+                    }
+                    eventEntityState.value.eventPendingList += userId
+                    viewModel.joinEvent(eventEntityState.value)
+                    Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
