@@ -1,10 +1,13 @@
 package com.example.mysquad.ui.screens.mainScreens.HomeScreen
 
+import EventRepository
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import android.os.Build
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,15 +31,23 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mysquad.ViewModel.EventViewModel
 import com.example.mysquad.ViewModel.WeatherViewModel
+import com.example.mysquad.ViewModel.factory.EventViewModelFactory
 import com.example.mysquad.api.data.entityForTesting.larry.Activity
+import com.example.mysquad.data.localRoom.database.AppDatabase
+import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
+import com.example.mysquad.componets.util.formatUnixSeconds
 
 
 @SuppressLint("MissingPermission")
@@ -47,7 +58,7 @@ fun getCurrentLocation(context: Context, onLocationReceived: (Location) -> Unit)
         .create()
         .setPriority(com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY)
         .setInterval(1000)
-        .setNumUpdates(1) // ✅ 只请求一次
+        .setNumUpdates(1)
 
     fusedLocationClient.requestLocationUpdates(
         locationRequest,
@@ -60,8 +71,6 @@ fun getCurrentLocation(context: Context, onLocationReceived: (Location) -> Unit)
                 } else {
                     Log.w("LocationDebug", "Real-time location is null.")
                 }
-
-                // ✅ 结束监听（只用一次）
                 fusedLocationClient.removeLocationUpdates(this)
             }
         },
@@ -70,11 +79,30 @@ fun getCurrentLocation(context: Context, onLocationReceived: (Location) -> Unit)
 }
 
 
-@Preview
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen() {
-    val viewModel: WeatherViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+    val viewModel: WeatherViewModel = viewModel()
     val context = LocalContext.current
+    val db = remember { AppDatabase.getInstance(context) }
+    val eventDao = db.eventDao()
+    val remote = EventRemoteDataSource()
+    val eventRepository = remember { EventRepository(eventDao, remote) }
+    val eventViewModel: EventViewModel = viewModel(
+        factory = EventViewModelFactory(eventRepository)
+    )
+    LaunchedEffect(Unit) {
+        eventViewModel.syncFromFirebase()
+        eventViewModel.observeRelevantEvents(userId.toString())
+    }
+
+    val relevantEventsState = eventViewModel.relevantEvents.collectAsState()
+    val relevantEvents = relevantEventsState.value
+
+
+
     LaunchedEffect(true) {
         getCurrentLocation(context) {
             Log.d("Location", "Lat: ${it.latitude}, Lon: ${it.longitude}")
@@ -94,7 +122,8 @@ fun HomeScreen() {
         Activity("Yoga Relaxation", "2025-04-18 10:00", isHost = true)
     )
 
-    val hasActivities = sampleActivities.isNotEmpty()
+
+    val hasActivities = relevantEvents.isNotEmpty()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -136,7 +165,15 @@ fun HomeScreen() {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                itemsIndexed(sampleActivities) { index, activity ->
+                itemsIndexed(relevantEvents) { index, event ->
+
+                    // ✅ 转换 EventEntity → Activity（你定义的数据类）
+                    val activity = Activity(
+                        title = event.eventTitle,
+                        time = formatUnixSeconds(event.eventDate), // 将秒转成格式化时间
+                        isHost = event.eventHostUserId == userId
+                    )
+
                     ActivityCard(activity = activity, index = index)
                 }
             }

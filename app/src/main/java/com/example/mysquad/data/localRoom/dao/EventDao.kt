@@ -22,4 +22,19 @@ interface EventDao {
 
     @Delete
     suspend fun deleteEvent(event: EventEntity)
+
+    @Query("DELETE FROM events")
+    suspend fun clearAllEvents()
+
+    @Query(
+        """
+        SELECT * FROM events
+        WHERE eventDate BETWEEN :startDate AND :endDate
+        ORDER BY eventDate DESC
+        """
+    )
+    fun getAllEventsInDateRange(
+        startDate: Long,
+        endDate: Long
+    ): Flow<List<EventEntity>>
 }
