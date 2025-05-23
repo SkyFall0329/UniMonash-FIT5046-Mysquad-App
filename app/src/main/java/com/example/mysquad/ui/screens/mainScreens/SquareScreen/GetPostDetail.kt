@@ -1,7 +1,9 @@
 package com.example.mysquad.ui.screens.mainScreens.SquareScreen
 
 import EventRepository
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +44,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mysquad.ViewModel.EventViewModel
 import com.example.mysquad.ViewModel.factory.EventViewModelFactory
+import com.example.mysquad.componets.util.formatUnixSeconds
+import com.example.mysquad.componets.util.formatUnixSecondsToDate
 import com.example.mysquad.data.localRoom.database.AppDatabase
 import com.example.mysquad.data.localRoom.entity.EventEntity
 import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
@@ -50,6 +54,7 @@ import com.example.mysquad.ui.screens.mainScreens.AddScreen.MapGraph
 import com.google.firebase.auth.FirebaseAuth
 import com.google.android.gms.maps.model.LatLng
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GetPostDetail(
     modifier: Modifier = Modifier,
@@ -83,7 +88,7 @@ fun GetPostDetail(
     val location = if (lat != null && lng != null) {
         LatLng(lat, lng)
     } else {
-        LatLng( -37.8136,  144.9631) // 或者默认值 LatLng(0.0, 0.0)
+        LatLng( -37.8136,  144.9631)
     }
 
     val verticalScrollState = rememberScrollState()
@@ -121,10 +126,11 @@ fun GetPostDetail(
 
             // Section Blocks
             listOf(
-                "Start Time：" to eventEntityState.value.eventStartTime,
-                "End Time：" to eventEntityState.value.eventEndTime,
-                "Description：" to eventEntityState.value.eventDescription,
-                "Address：" to eventEntityState.value.eventAddress
+                "Date: " to formatUnixSecondsToDate( eventEntityState.value.eventDate),
+                "Start Time: " to eventEntityState.value.eventStartTime,
+                "End Time: " to eventEntityState.value.eventEndTime,
+                "Description: " to eventEntityState.value.eventDescription,
+                "Address: " to eventEntityState.value.eventAddress
             ).forEach { (label, content) ->
                 Row(
                     modifier = Modifier

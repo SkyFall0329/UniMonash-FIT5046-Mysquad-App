@@ -13,6 +13,13 @@ fun formatUnixSeconds(seconds: Long): String {
         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatUnixSecondsToDate(seconds: Long): String {
+    return Instant.ofEpochSecond(seconds)
+        .atZone(ZoneId.systemDefault())
+        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+}
+
 fun timeStringToSeconds(timeStr: String): Long {
     return try {
         val parts = timeStr.split(":")
@@ -21,5 +28,19 @@ fun timeStringToSeconds(timeStr: String): Long {
         hours * 3600 + minutes * 60
     } catch (e: Exception) {
         0L
+    }
+}
+
+fun getActivityIcon(activity: String): String {
+    return when (activity) {
+        "Basketball" -> "🏀"
+        "Football" -> "⚽️"
+        "Volleyball" -> "🏐"
+        "Badminton" -> "🏸"
+        "Table Tennis" -> "🏓"
+        "Tennis" -> "🎾"
+        "Swimming" -> "🏊"
+        "Aerobics" -> "🏃"
+        else -> "❓"
     }
 }

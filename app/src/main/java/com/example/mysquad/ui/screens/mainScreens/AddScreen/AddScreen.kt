@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,6 +58,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import com.example.mysquad.componets.util.await
 import com.example.mysquad.componets.util.timeStringToSeconds
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -141,14 +144,8 @@ fun AddScreen(modifier: Modifier = Modifier) {
                     Downregulate(
                         labelText = "Type of event",
                         states = listOf(
-                            "Basketball",
-                            "Football",
-                            "Volleyball",
-                            "Badminton",
-                            "Table Tennis",
-                            "Tennis",
-                            "Swimming",
-                            "Aerobics"
+                            "Basketball🏀", "Football⚽️", "Volleyball🏐", "Badminton🏸",
+                            "Table Tennis🏓", "Tennis🎾", "Swimming🏊", "Aerobics🏃"
                         ),
                         modifier = modifier,
                         selectedState = type
@@ -222,7 +219,6 @@ fun AddScreen(modifier: Modifier = Modifier) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
 
             //按钮区域
             Row(
@@ -257,15 +253,16 @@ fun AddScreen(modifier: Modifier = Modifier) {
                         eventstarttime.value = ""
                         eventendtime.value = ""
                     },
-                    modifier = Modifier.width(150.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .align(Alignment.CenterVertically),
+                    colors = ButtonDefaults.elevatedButtonColors(containerColor = Color(0xFFFF6F00))
                 ) {
                     Text(
                         text = "Post",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = Color.White,
+                        style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     )
                 }
             }

@@ -22,6 +22,7 @@ class AuthRepository(
 
 
     /** Create the Auth user and writes their username into Firestore **/
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun signUp(email: String, password: String, username: String) {
         try {
             auth.createUserWithEmailAndPassword(email, password).await()

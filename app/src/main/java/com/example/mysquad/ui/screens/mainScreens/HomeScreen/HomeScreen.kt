@@ -48,6 +48,7 @@ import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.example.mysquad.componets.util.formatUnixSeconds
+import com.example.mysquad.componets.util.getActivityIcon
 
 
 @SuppressLint("MissingPermission")
@@ -114,15 +115,6 @@ fun HomeScreen() {
     val condition = weather?.weatherCondition?.description?.text ?: "Loading..."
     val feelsLike = weather?.feelsLikeTemperature?.degrees?.toInt()?.toString()?.plus("°C") ?: "..."
 
-
-
-    val sampleActivities: List<Activity> = listOf(
-        Activity("Basketball Training", "2025-04-16 17:30", isHost = true),
-        Activity("Morning Run Group", "2025-04-17 06:45", isHost = false),
-        Activity("Yoga Relaxation", "2025-04-18 10:00", isHost = true)
-    )
-
-
     val hasActivities = relevantEvents.isNotEmpty()
 
     Column(
@@ -153,7 +145,7 @@ fun HomeScreen() {
 
         // 📋 Section Title
         Text(
-            text = "Your Activities",
+            text = "Your Activities For The Next Seven Days",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -169,12 +161,13 @@ fun HomeScreen() {
 
                     // ✅ 转换 EventEntity → Activity（你定义的数据类）
                     val activity = Activity(
+                        type = event.eventType,
                         title = event.eventTitle,
                         time = formatUnixSeconds(event.eventDate), // 将秒转成格式化时间
                         isHost = event.eventHostUserId == userId
                     )
 
-                    ActivityCard(activity = activity, index = index)
+                    ActivityCard(activity = activity)
                 }
             }
         } else {
@@ -185,7 +178,7 @@ fun HomeScreen() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Tap the + button below or go to Square to create or join an event 😊",
+                    text = "You have no activities scheduled for the next seven days\nTap the + button below or go to Square to create or join an event 😊",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
@@ -197,7 +190,7 @@ fun HomeScreen() {
 
 
 @Composable
-fun ActivityCard(activity: Activity, index: Int) {
+fun ActivityCard(activity: Activity) {
     val orangeAlt = MaterialTheme.colorScheme.surfaceVariant
     val roleLabel = if (activity.isHost) "Host" else "Participant"
     val roleColor = if (activity.isHost)
@@ -205,7 +198,6 @@ fun ActivityCard(activity: Activity, index: Int) {
     else
         Color(0xFF0059FF)
 
-    // 🟡 Alternating background color
     val backgroundColor = if (false)
         MaterialTheme.colorScheme.surface
     else
@@ -221,7 +213,7 @@ fun ActivityCard(activity: Activity, index: Int) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Activity title
             Text(
-                text = activity.title,
+                text = getActivityIcon(activity.type)+activity.title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
