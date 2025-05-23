@@ -42,7 +42,12 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE eventHostUserId = :uid ORDER by eventDate ASC")
     fun getHostedBy(uid:String):Flow<List<EventEntity>>
 
-    @Query("SELECT * FROM events WHERE :uid In (eventJoinList) OR :uid In (EventPendingList) ORDER BY eventDate ASC")
-    fun getJoinedBy(uid:String):Flow<List<EventEntity>>
+    @Query("""
+    SELECT * FROM events
+    WHERE (:uid IN (eventJoinList) OR :uid IN (eventPendingList))
+      AND eventHostUserId != :uid
+    ORDER BY eventDate ASC
+""")
+    fun getJoinedBy(uid: String): Flow<List<EventEntity>>
 
 }
