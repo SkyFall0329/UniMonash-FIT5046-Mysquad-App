@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mysquad.ViewModel.EventViewModel
 import com.example.mysquad.ViewModel.factory.EventViewModelFactory
 import com.example.mysquad.componets.ashley.DisplayDatePicker
+import com.example.mysquad.componets.util.getActivityIcon
 import com.example.mysquad.data.localRoom.database.AppDatabase
 import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 
@@ -41,7 +42,6 @@ fun SquareScreen(navController: NavController, modifier: Modifier = Modifier) {
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //Page Title
         Surface(
             shape = RoundedCornerShape(30.dp),
             modifier = Modifier
@@ -66,11 +66,11 @@ fun SquareScreen(navController: NavController, modifier: Modifier = Modifier) {
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 Downregulate(
-                    labelText = "Select event type",
+                    labelText = "Event Type",
                     selectedState = remember { mutableStateOf("") },
                     states = listOf(
-                        "Basketball", "Football", "Volleyball", "Badminton",
-                        "Table Tennis", "Tennis", "Swimming", "Aerobics"
+                        "Basketball🏀", "Football⚽️", "Volleyball🏐", "Badminton🏸",
+                        "Table Tennis🏓", "Tennis🎾", "Swimming🏊", "Aerobics🏃"
                     )
                 )
             }
@@ -134,6 +134,7 @@ fun EventLazyColumn(navController: NavController) {
         LazyColumn {
             items(eventList.size) { index ->
                 SportsEventCard(
+                    eventType = eventList[index].eventType,
                     eventTitle = eventList[index].eventTitle,
                     onClick = { navController.navigate(Screen.PostDetail.postId(eventList[index].eventId)) }
                 )
@@ -144,6 +145,7 @@ fun EventLazyColumn(navController: NavController) {
 
 @Composable
 fun SportsEventCard(
+    eventType: String,
     modifier: Modifier = Modifier,
     eventTitle: String,
     onClick: () -> Unit
@@ -156,7 +158,6 @@ fun SportsEventCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .clickable {
-                Toast.makeText(context, eventTitle, Toast.LENGTH_SHORT).show()
                 onClick()
             }
             .fillMaxWidth()
@@ -167,7 +168,7 @@ fun SportsEventCard(
             )
     ) {
         Text(
-            text = eventTitle,
+            text = getActivityIcon(eventType)+ eventTitle,
             style = MaterialTheme.typography.titleMedium.copy(
                 color = Color.Black // 强制设为黑色
             ),
