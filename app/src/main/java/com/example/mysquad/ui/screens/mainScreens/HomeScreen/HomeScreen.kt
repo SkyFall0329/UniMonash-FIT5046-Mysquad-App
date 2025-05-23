@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Umbrella
 import androidx.compose.material.icons.filled.WbCloudy
 import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -49,6 +50,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.example.mysquad.componets.util.formatUnixSeconds
 import com.example.mysquad.componets.util.getActivityIcon
+import com.example.mysquad.workManager.NotificationWorker
+import com.example.mysquad.workManager.sendNotification
 
 
 @SuppressLint("MissingPermission")
@@ -167,7 +170,7 @@ fun HomeScreen() {
                         isHost = event.eventHostUserId == userId
                     )
 
-                    ActivityCard(activity = activity)
+                    ActivityCard(activity = activity, context = context)
                 }
             }
         } else {
@@ -190,7 +193,7 @@ fun HomeScreen() {
 
 
 @Composable
-fun ActivityCard(activity: Activity) {
+fun ActivityCard(activity: Activity, context: Context) {
     val orangeAlt = MaterialTheme.colorScheme.surfaceVariant
     val roleLabel = if (activity.isHost) "Host" else "Participant"
     val roleColor = if (activity.isHost)
@@ -239,16 +242,29 @@ fun ActivityCard(activity: Activity) {
             Spacer(modifier = Modifier.height(4.dp))
 
             // Role tag
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = roleColor.copy(alpha = 0.15f)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = roleLabel,
-                    color = roleColor,
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                )
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = roleColor.copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        text = roleLabel,
+                        color = roleColor,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+
+                Button(onClick = {
+                    val message = getActivityIcon(activity.type) + activity.title + " will commence today!"
+                    sendNotification(message, context)
+                }) {
+                    Text("Notify Me!")
+                }
             }
         }
     }
