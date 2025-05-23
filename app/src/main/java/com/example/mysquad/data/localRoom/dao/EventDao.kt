@@ -39,15 +39,24 @@ interface EventDao {
         endDate: Long
     ): Flow<List<EventEntity>>
 
-    @Query("SELECT * FROM events WHERE eventHostUserId = :uid ORDER by eventDate ASC")
+    @Query("""SELECT * FROM events 
+        WHERE (eventHostUserId = :uid) or 
+        (eventJoinList LIKE '%' || :uid || '%')
+        ORDER by eventDate ASC""")
     fun getHostedBy(uid:String):Flow<List<EventEntity>>
+
+    @Query("""SELECT * FROM events 
+        WHERE (eventJoinList LIKE '%' || :uid || '%')
+        ORDER by eventDate ASC""")
+    fun getJoinedBy(uid:String):Flow<List<EventEntity>>
 
     @Query("""
     SELECT * FROM events
-    WHERE (:uid IN (eventJoinList) OR :uid IN (eventPendingList))
-      AND eventHostUserId != :uid
+    WHERE ',' || eventPendingList || ',' LIKE '%,' || :uid || ',%'
     ORDER BY eventDate ASC
 """)
-    fun getJoinedBy(uid: String): Flow<List<EventEntity>>
+    fun getPending(uid: String): Flow<List<EventEntity>>
 
+    @Query("DELETE FROM events WHERE eventId = :id")
+    suspend fun deleteEventById(id: String)
 }

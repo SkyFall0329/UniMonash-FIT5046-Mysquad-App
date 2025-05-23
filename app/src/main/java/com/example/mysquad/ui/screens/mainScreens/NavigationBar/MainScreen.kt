@@ -12,7 +12,9 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,6 +25,7 @@ import androidx.navigation.navArgument
 import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.ViewModel.EventViewModel
 import com.example.mysquad.ViewModel.UserProfileViewModel
+import com.example.mysquad.ViewModel.factory.UserProfileViewModelFactory
 import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalEvent
 import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalUser
 import com.example.mysquad.navigation.Screen
@@ -36,7 +39,10 @@ import com.example.mysquad.ui.screens.mainScreens.TodoScreen.RequestsList
 import com.example.mysquad.ui.screens.mainScreens.TodoScreen.TodoScreen
 import com.example.mysquad.ui.screens.mainScreens.TodoScreen.UserProfile
 import com.example.mysquad.api.data.entityForTesting.larry.UserProfile
+import com.example.mysquad.data.localRoom.database.AppDatabase
 import com.example.mysquad.data.localRoom.entity.EventEntity
+import com.example.mysquad.data.remoteFireStore.UserRemoteDataSource
+import com.example.mysquad.data.repository.UserRepository
 import com.example.mysquad.navigation.BottomBarItem
 import com.example.mysquad.ui.theme.ThemeMode
 
@@ -52,6 +58,13 @@ fun MainScreen(
     val items = BottomBarItem.items
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val context = LocalContext.current
+    val db = AppDatabase.getInstance(context)
+    val userRepository = UserRepository(db.userDao(), UserRemoteDataSource())
+    val profileViewModel: UserProfileViewModel = viewModel(
+        factory = UserProfileViewModelFactory(userRepository)
+    )
+    val userMap by profileViewModel.userMap.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -109,10 +122,9 @@ fun MainScreen(
                 val uid = authViewModel.getCurrentUserId()?:""
                 TodoScreen(
                     currentUserUid = uid,
-                    viewModel      = eventViewModel,
-                    onCardClick    = { eventId ->
-                        navController.navigate(Screen.EventDetail.createRoute(eventId))
-                    }
+                    viewModel = eventViewModel,
+                    profileViewModel = profileViewModel,
+                    onCardClick = { eventId -> navController.navigate(Screen.EventDetail.createRoute(eventId)) }
                 )
             }
             composable(
@@ -129,7 +141,9 @@ fun MainScreen(
                         event          = event as EventEntity,
                         currentUserId  = authViewModel.getCurrentUserId()?:"",
                         onNavigateBack = { navController.popBackStack() },
-                        navController  = navController
+                        navController  = navController,
+                        userMap = userMap,
+                        viewModel = eventViewModel
                     )
                 } else {
                     LoadingScreen(onBack = { navController.popBackStack() })

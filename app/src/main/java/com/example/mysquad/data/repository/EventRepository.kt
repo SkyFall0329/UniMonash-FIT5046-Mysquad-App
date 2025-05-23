@@ -23,8 +23,8 @@ class EventRepository(
     fun getHostEvents(uid:String) =
         eventDao.getHostedBy(uid).map{it.sortedBy(EventEntity::eventDate)}
 
-    fun getJoinedEvents(uid:String) =
-        eventDao.getJoinedBy(uid).map{it.sortedBy(EventEntity::eventDate)}
+    fun getPending(uid:String) =
+        eventDao.getPending(uid)
 
     fun getLocalEvents(): Flow<List<EventEntity>> = eventDao.getAllEvents()
     fun getRemoteEvents() = remote.fetchAllEvents()
@@ -53,6 +53,14 @@ class EventRepository(
                 all.filter { it.eventHostUserId == userId || it.eventJoinList.contains(userId) }
                     .sortedByDescending { it.eventDate }
             }
+    }
+
+    suspend fun deleteEvent(eventId: String) {
+        // 1. remove from Firestore
+        remote.deleteEventById(eventId)
+
+        // 2. remove from Room
+        eventDao.deleteEventById(eventId)
     }
 
     /** Accepts seconds or millis → always returns millis. */

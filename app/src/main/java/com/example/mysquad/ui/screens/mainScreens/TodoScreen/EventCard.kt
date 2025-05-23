@@ -32,16 +32,22 @@ import java.time.format.DateTimeFormatter
 fun EventCard(
     event: EventEntity,
     onClick: () -> Unit,
-    isHostedByMe: Boolean,
-    currentUserUid: String
+    currentUserUid: String,
+    userMap: Map<String, String>
 ) {
-    /* ---------- helpers ---------- */
     val localDate = Instant.ofEpochMilli(event.eventDate)
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
-    val dateFmt   = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val hostName = userMap[event.eventHostUserId] ?: event.eventHostUserId
 
-    /* ---------- UI ---------- */
+    val status = when {
+        event.eventHostUserId == currentUserUid -> "Host"
+        event.eventPendingList.contains(currentUserUid) -> "Awaiting approval"
+        event.eventJoinList.contains(currentUserUid) -> "Joined"
+        else -> null
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -51,23 +57,21 @@ fun EventCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-
-            /* TITLE & pending-applicant badge */
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    "${event.eventType} – ${event.eventTitle}",
+                    text = "${event.eventType} – ${event.eventTitle}",
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                if (isHostedByMe && event.eventPendingList.isNotEmpty()) {
+                if (event.eventHostUserId == currentUserUid && event.eventPendingList.isNotEmpty()) {
                     BadgedBox(
                         badge = {
                             Badge(
                                 containerColor = Color.Red,
-                                contentColor   = Color.White
+                                contentColor = Color.White
                             ) { Text("${event.eventPendingList.size}") }
                         }
                     ) {
@@ -79,25 +83,9 @@ fun EventCard(
                 }
             }
 
-            /* DATE / TIME  */
-            Text(
-                "${dateFmt.format(localDate)} | ${event.eventStartTime}–${event.eventEndTime}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            /* PARTICIPANT COUNT  */
-            Text(
-                "Participants: ${event.eventJoinList.size}",
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            /* STATUS LABEL  */
-            val status = when {
-                isHostedByMe -> "Host"
-                event.eventPendingList.contains(currentUserUid) -> "Awaiting approval"
-                event.eventJoinList.contains(currentUserUid)    -> "Joined"
-                else -> null
-            }
+            Text("Host: $hostName", style = MaterialTheme.typography.bodySmall)
+            Text("${dateFmt.format(localDate)} | ${event.eventStartTime}–${event.eventEndTime}", style = MaterialTheme.typography.bodyMedium)
+            Text("Participants: ${event.eventJoinList.size}", style = MaterialTheme.typography.bodySmall)
 
             status?.let {
                 Row(
@@ -116,3 +104,4 @@ fun EventCard(
         }
     }
 }
+

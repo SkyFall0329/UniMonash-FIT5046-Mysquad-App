@@ -1,6 +1,7 @@
 package com.example.mysquad.ui.screens.mainScreens.TodoScreen
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,7 +12,9 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mysquad.ViewModel.EventViewModel
+import com.example.mysquad.ViewModel.UserProfileViewModel
 import com.example.mysquad.data.localRoom.entity.EventEntity
 import com.example.mysquad.ui.screens.mainScreens.todo.EventCard
 import kotlinx.coroutines.launch
@@ -21,10 +24,18 @@ import kotlinx.coroutines.launch
 fun TodoScreen(
     currentUserUid: String,
     viewModel: EventViewModel,
+    profileViewModel: UserProfileViewModel,
     onCardClick: (String) -> Unit          // receives eventId
 ) {
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(Unit) { scope.launch { viewModel.syncEventsToLocal() } }
+
+    LaunchedEffect(Unit) {
+        viewModel.syncEventsToLocal()
+        profileViewModel.syncAllUsersFromRemote()
+        profileViewModel.loadUserFromRoom(currentUserUid)
+        profileViewModel.syncUserFromRemote(currentUserUid)
+    }
+
+    val userMap by profileViewModel.userMap.collectAsState()
 
     var selectedTab by remember { mutableIntStateOf(0) }   // 0 = hosted | 1 = joined
 
@@ -57,8 +68,8 @@ fun TodoScreen(
                 EventCard(
                     event = event,
                     onClick = { onCardClick(event.eventId) },
-                    isHostedByMe = selectedTab == 0,
-                    currentUserUid = currentUserUid
+                    currentUserUid = currentUserUid,
+                    userMap = userMap
                 )
             }
         }
@@ -72,7 +83,7 @@ fun SingleChoiceSegmentedButton(
     onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val options = listOf("Hosted by me", "Joined by me")
+    val options = listOf("Host or Joined", "Pending")
 
     Box(
         modifier = modifier

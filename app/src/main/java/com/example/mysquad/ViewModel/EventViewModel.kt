@@ -28,7 +28,7 @@ class EventViewModel(
         eventRepository.getHostEvents(uid)
 
     fun joinedBy(uid: String): Flow<List<EventEntity>> =
-        eventRepository.getJoinedEvents(uid)
+        eventRepository.getPending(uid)
 
 
     private val _relevantEvents = MutableStateFlow<List<EventEntity>>(emptyList())
@@ -48,6 +48,7 @@ class EventViewModel(
     fun syncEventsToLocal() = viewModelScope.launch(Dispatchers.IO) {
         eventRepository.syncEventsToLocal()
     }
+
 
     private val _eventCreated = MutableStateFlow<Boolean?>(null)
     val eventCreated: StateFlow<Boolean?> = _eventCreated
@@ -94,4 +95,13 @@ class EventViewModel(
             }
         }
     }
+
+    fun cancelEvent(eventId: String) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            eventRepository.deleteEvent(eventId)
+        } catch (e: Exception) {
+            Log.e("EventViewModel", "Failed to delete event", e)
+        }
+    }
+
 }

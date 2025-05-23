@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.mysquad.ViewModel.EventViewModel
 import com.example.mysquad.data.localRoom.entity.EventEntity
 import com.example.mysquad.navigation.Screen
 import java.time.Instant
@@ -52,24 +53,25 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailScreen(
-    event: EventEntity,                     // ← Room entity, not the old stub
+    event: EventEntity,
     currentUserId: String,
     onNavigateBack: () -> Unit,
-    navController: NavHostController
+    navController: NavHostController,
+    userMap: Map<String, String>,
+    viewModel: EventViewModel
 ) {
-    /* ---------- quick helpers ---------- */
-    val isHost   = event.eventHostUserId == currentUserId
+    val isHost = event.eventHostUserId == currentUserId
     val isJoined = event.eventJoinList.contains(currentUserId)
-    val isPending= event.eventPendingList.contains(currentUserId)
+    val isPending = event.eventPendingList.contains(currentUserId)
     val isParticipantOrApplicant = isJoined || isPending
 
     val localDate = Instant.ofEpochMilli(event.eventDate)
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
-    val dateFmt   = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     var showCancelDialog by remember { mutableStateOf(false) }
-    var showExitDialog   by remember { mutableStateOf(false) }
+    var showExitDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -91,18 +93,17 @@ fun EventDetailScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            /* 🗓️ EVENT INFO */
             InfoCard {
                 Text("Event Type: ${event.eventType}", style = MaterialTheme.typography.bodyLarge)
                 Text("Date: ${dateFmt.format(localDate)}   Time: ${event.eventStartTime} – ${event.eventEndTime}")
             }
 
-            /* 👤 HOST & PARTICIPANTS */
             InfoCard {
+                val hostName = userMap[event.eventHostUserId] ?: event.eventHostUserId
                 Text("Host:", style = MaterialTheme.typography.titleSmall)
                 ClickableText(
-                    text = AnnotatedString(event.eventHostUserId),           // uid for now
-                    onClick = { /* TODO: navigate to host profile */ },
+                    text = AnnotatedString(hostName),
+                    onClick = { },
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
                 )
 
@@ -111,32 +112,29 @@ fun EventDetailScreen(
                 Text("Participants:", style = MaterialTheme.typography.titleSmall)
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     event.eventJoinList.forEach { uid ->
+                        val name = userMap[uid] ?: uid
                         ClickableText(
-                            text = AnnotatedString(uid),
-                            onClick = { /* TODO: navigate to profile */ },
+                            text = AnnotatedString(name),
+                            onClick = { },
                             style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
                         )
                     }
                 }
             }
 
-            /* 📝 DESCRIPTION */
             InfoCard {
                 Text("Description:", style = MaterialTheme.typography.titleSmall)
                 Text(event.eventDescription.ifBlank { "No description provided." })
             }
 
-            /* 📍 LOCATION (placeholder map) */
             InfoCard {
                 Text("Location: ${event.eventAddress}")
             }
 
-
-            /* -------------------------------- ACTION BUTTONS -------------------------------- */
             if (isHost) {
                 HostActionRow(
                     pendingCount = event.eventPendingList.size,
-                    onCancel     = { showCancelDialog = true },
+                    onCancel = { showCancelDialog = true },
                     onApplicants = { navController.navigate(Screen.RequestsList.route) }
                 )
             } else if (isParticipantOrApplicant) {
@@ -144,28 +142,31 @@ fun EventDetailScreen(
             }
         }
 
-        /* ---------- dialogs ---------- */
         if (showCancelDialog) {
             ConfirmationDialog(
-                title      = "Cancel Event",
-                question   = "Are you sure you want to delete this event?",
+                title = "Cancel Event",
+                question = "Are you sure you want to delete this event?",
                 confirmLbl = "Delete",
-                onConfirm  = { /* TODO: delete event */ },
-                onDismiss  = { showCancelDialog = false }
+                onConfirm = {
+                    viewModel.cancelEvent(event.eventId)
+                    onNavigateBack()
+                },
+                onDismiss = { showCancelDialog = false }
             )
         }
 
         if (showExitDialog) {
             ConfirmationDialog(
-                title      = "Exit Event",
-                question   = "Are you sure you want to exit this event?",
+                title = "Exit Event",
+                question = "Are you sure you want to exit this event?",
                 confirmLbl = "Confirm",
-                onConfirm  = { /* TODO: exit event */ },
-                onDismiss  = { showExitDialog = false }
+                onConfirm = { },
+                onDismiss = { showExitDialog = false }
             )
         }
     }
 }
+
 
 /* ---------- small reusable composables ---------- */
 
