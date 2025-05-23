@@ -132,10 +132,11 @@ fun EventDetailScreen(
             }
 
             if (isHost) {
+                val id = event.eventId.toString()
                 HostActionRow(
                     pendingCount = event.eventPendingList.size,
                     onCancel = { showCancelDialog = true },
-                    onApplicants = { navController.navigate(Screen.RequestsList.route) }
+                    onApplicants = { navController.navigate("requests_list/$id") }
                 )
             } else if (isParticipantOrApplicant) {
                 ParticipantActionRow { showExitDialog = true }

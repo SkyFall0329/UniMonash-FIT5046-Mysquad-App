@@ -77,7 +77,7 @@ class EventRepository(
         if (raw < 100_000_000_000L) raw * 1000 else raw
 
     suspend fun getPendingUsersForEvent(eventId: String): List<UserProfileEntity> {
-        val event = eventDao.getEventById(eventId)
+        val event = eventDao.eventById(eventId)
         return if (event != null && event.eventPendingList.isNotEmpty()) {
             userDao.getUsersByIds(event.eventPendingList)
         } else {
@@ -86,7 +86,7 @@ class EventRepository(
     }
 
     suspend fun removeUserFromPendingList(eventId: String, userId: String) {
-        val event = eventDao.getEventById(eventId)
+        val event = eventDao.eventById(eventId)
         if (event != null && event.eventPendingList.contains(userId)) {
             val updatedList = event.eventPendingList.filterNot { it == userId }
             val updatedEvent = event.copy(eventPendingList = updatedList)
@@ -95,7 +95,7 @@ class EventRepository(
     }
 
     suspend fun joinEvent(eventId: String, userId: String) {
-        val event = eventDao.getEventById(eventId)
+        val event = eventDao.eventById(eventId)
         if (event != null && !event.eventJoinList.contains(userId)) {
             val updatedEvent = event.copy(
                 eventJoinList = event.eventJoinList + userId

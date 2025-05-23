@@ -24,6 +24,6 @@ sealed class Screen(val route: String) {
         const val route = "$base/{$arg}"
         fun createRoute(eventId: String) = "$base/$eventId"
     }
-    object RequestsList : Screen("requests_list")
+    object RequestsList : Screen("requests_list/{eventId}"){ fun createRoute(eventId: String): String = "requests_list/$eventId" }
     object UserProfile : Screen("user_profile/{userId}") { fun createRoute(userId: String): String = "user_profile/$userId" }
 }

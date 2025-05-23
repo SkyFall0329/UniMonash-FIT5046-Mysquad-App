@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EventViewModel(
     private val eventRepository: EventRepository
@@ -121,18 +122,21 @@ class EventViewModel(
     val pendingUsers: LiveData<List<UserProfileEntity>> = _pendingUsers
 
     fun loadPendingUsers(eventId: String) {
-        viewModelScope.launch {
-            _pendingUsers.value = eventRepository.getPendingUsersForEvent(eventId)
+        viewModelScope.launch(Dispatchers.IO) { // ⬅️ 加上 Dispatchers.IO
+            val users = eventRepository.getPendingUsersForEvent(eventId)
+            withContext(Dispatchers.Main) {
+                _pendingUsers.value = users
+            }
         }
     }
     fun rejectUser(eventId: String, userId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             eventRepository.removeUserFromPendingList(eventId, userId)
         }
     }
 
     fun acceptUser(eventId: String, userId: String){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             eventRepository.joinEvent(eventId,userId)
         }
     }

@@ -75,7 +75,7 @@ fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Un
             id = it.userId,
             name = it.userName,
             avatarResId = R.drawable.ic_menu_camera, // ❗️你可以换成你自己的默认头像
-            message = it.userBio.ifEmpty { "No message." }
+            message = it.userBio?.ifEmpty { "No message." } ?: " "
         )
     }
 

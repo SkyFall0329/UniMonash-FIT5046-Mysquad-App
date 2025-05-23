@@ -25,6 +25,9 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE eventId = :id")
     fun getEventById(id: String): Flow<EventEntity?>
 
+    @Query("SELECT * FROM events WHERE eventId = :id")
+    fun eventById(id: String): EventEntity?
+
     @Delete
     suspend fun deleteEvent(event: EventEntity)
 
