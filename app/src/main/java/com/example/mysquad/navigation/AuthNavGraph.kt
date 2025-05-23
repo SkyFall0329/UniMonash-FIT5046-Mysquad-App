@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.mysquad.ViewModel.AuthUiState
 import com.example.mysquad.ViewModel.AuthViewModel
+import com.example.mysquad.ViewModel.EventViewModel
 import com.example.mysquad.ViewModel.UserProfileViewModel
 import com.example.mysquad.ui.screens.authScreens.ResetPasswordScreen
 import com.example.mysquad.ui.screens.authScreens.LoginScreenWithAnimation
@@ -28,6 +29,7 @@ fun NavGraphBuilder.AuthNavGraph(
     navController: NavHostController,
     onThemeChange: (ThemeMode) -> Unit,
     authViewModel: AuthViewModel,
+    eventViewModel: EventViewModel
 ) {
     composable(Screen.Login.route) {
         LoginScreenWithAnimation(
@@ -95,6 +97,7 @@ fun NavGraphBuilder.AuthNavGraph(
             authViewModel = authViewModel,
             onThemeChange = onThemeChange,
             rootNavController = navController,
+            eventViewModel = eventViewModel,
         )
     }
 }

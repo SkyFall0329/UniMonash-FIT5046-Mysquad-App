@@ -1,5 +1,6 @@
 package com.example.mysquad.data.localRoom.dao
 
+import android.R.string
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -18,7 +19,7 @@ interface EventDao {
     fun getAllEvents(): Flow<List<EventEntity>>
 
     @Query("SELECT * FROM events WHERE eventId = :id")
-    suspend fun getEventById(id: String): EventEntity?
+    fun getEventById(id: String): Flow<EventEntity?>
 
     @Delete
     suspend fun deleteEvent(event: EventEntity)
@@ -37,4 +38,11 @@ interface EventDao {
         startDate: Long,
         endDate: Long
     ): Flow<List<EventEntity>>
+
+    @Query("SELECT * FROM events WHERE eventHostUserId = :uid ORDER by eventDate ASC")
+    fun getHostedBy(uid:String):Flow<List<EventEntity>>
+
+    @Query("SELECT * FROM events WHERE :uid In (eventJoinList) OR :uid In (EventPendingList) ORDER BY eventDate ASC")
+    fun getJoinedBy(uid:String):Flow<List<EventEntity>>
+
 }

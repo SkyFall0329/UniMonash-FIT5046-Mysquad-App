@@ -15,9 +15,16 @@ class EventRepository(
 
     suspend fun syncEventsToLocal() {
         val remoteEvents = remote.fetchEvents()
+            .map{it.copy(eventDate=normaliseDate(it.eventDate))}
         eventDao.clearAllEvents()
         remoteEvents.forEach { eventDao.insertEvent(it) }
     }
+
+    fun getHostEvents(uid:String) =
+        eventDao.getHostedBy(uid).map{it.sortedBy(EventEntity::eventDate)}
+
+    fun getJoinedEvents(uid:String) =
+        eventDao.getJoinedBy(uid).map{it.sortedBy(EventEntity::eventDate)}
 
     fun getLocalEvents(): Flow<List<EventEntity>> = eventDao.getAllEvents()
     fun getRemoteEvents() = remote.fetchAllEvents()
@@ -29,6 +36,9 @@ class EventRepository(
         return null
 
     }
+
+    fun eventById(id: String): Flow<EventEntity?> =
+        eventDao.getEventById(id)
 
     suspend fun joinEvent(value: EventEntity) {
         remote.uploadEvent(value)
@@ -44,4 +54,8 @@ class EventRepository(
                     .sortedByDescending { it.eventDate }
             }
     }
+
+    /** Accepts seconds or millis → always returns millis. */
+    private fun normaliseDate(raw: Long): Long =
+        if (raw < 100_000_000_000L) raw * 1000 else raw
 }

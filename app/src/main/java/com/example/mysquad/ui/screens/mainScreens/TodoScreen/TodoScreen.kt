@@ -11,22 +11,31 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
-import com.example.mysquad.api.data.entityForTesting.jianhui.Event
-import com.example.mysquad.api.data.entityForTesting.jianhui.User
-import com.example.mysquad.api.data.entityForTesting.jianhui.local.LocalEvent
+import com.example.mysquad.ViewModel.EventViewModel
+import com.example.mysquad.data.localRoom.entity.EventEntity
+import com.example.mysquad.ui.screens.mainScreens.todo.EventCard
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TodoScreen(currentUser: User, navigateToDetail: (Int) -> Unit) {
-    var selectedTab by remember { mutableIntStateOf(0) }
+fun TodoScreen(
+    currentUserUid: String,
+    viewModel: EventViewModel,
+    onCardClick: (String) -> Unit          // receives eventId
+) {
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) { scope.launch { viewModel.syncEventsToLocal() } }
 
-    val hostedEvents = LocalEvent.events.filter { it.eventHost == currentUser }
-    val joinedEvents = LocalEvent.events.filter {
-        it.eventParticipants.contains(currentUser) || it.eventApplicant.contains(currentUser)
-    }
-    val eventsToShow:List<Event>  = if (selectedTab == 0) hostedEvents else joinedEvents
+    var selectedTab by remember { mutableIntStateOf(0) }   // 0 = hosted | 1 = joined
 
+    val hostedEvents  by viewModel.hostedBy(currentUserUid).collectAsState(initial = emptyList())
+    val joinedEvents  by viewModel.joinedBy(currentUserUid).collectAsState(initial = emptyList())
+    val eventsToShow: List<EventEntity> = if (selectedTab == 0) hostedEvents else joinedEvents
+
+    /* ---------- UI ---------- */
     Column(modifier = Modifier.fillMaxSize()) {
+
+        /** headline **/
         Text(
             text = "My Events",
             fontWeight = FontWeight.Bold,
@@ -35,27 +44,28 @@ fun TodoScreen(currentUser: User, navigateToDetail: (Int) -> Unit) {
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 36.dp)
         )
+
+        /** segmented control **/
         SingleChoiceSegmentedButton(
             selectedIndex = selectedTab,
             onTabSelected = { selectedTab = it }
         )
 
+        /** list **/
         LazyColumn(modifier = Modifier.padding(16.dp)) {
             itemsIndexed(eventsToShow) { _, event ->
                 EventCard(
                     event = event,
-                    onClick = { navigateToDetail(event.eventID) },
-                    isHostedByMe = (selectedTab == 0),
-                    currentUser = currentUser
+                    onClick = { onCardClick(event.eventId) },
+                    isHostedByMe = selectedTab == 0,
+                    currentUserUid = currentUserUid
                 )
             }
         }
     }
 }
 
-/**
- * Single choice segmented button for selecting between hosted events and joined events.
- */
+
 @Composable
 fun SingleChoiceSegmentedButton(
     selectedIndex: Int,
@@ -80,15 +90,12 @@ fun SingleChoiceSegmentedButton(
                     selected = index == selectedIndex,
                     onClick = { onTabSelected(index) },
                     colors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = Color(0xFFFF7D5C), // Orange
-                        activeContentColor = Color(0xFFFFFFFF),
+                        activeContainerColor   = Color(0xFFFF7D5C),
+                        activeContentColor     = Color.White,
                         inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        inactiveContentColor   = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
-                    shape = SegmentedButtonDefaults.itemShape(
-                        index = index,
-                        count = options.size
-                    ),
+                    shape = SegmentedButtonDefaults.itemShape(index, options.size),
                     label = { Text(text = label) }
                 )
             }
