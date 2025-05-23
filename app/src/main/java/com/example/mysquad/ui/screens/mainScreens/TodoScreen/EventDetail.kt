@@ -1,11 +1,15 @@
 package com.example.mysquad.ui.screens.mainScreens.TodoScreen
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
@@ -38,15 +42,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.mysquad.api.data.entityForTesting.jianhui.Event
-import com.example.mysquad.api.data.entityForTesting.jianhui.User
+import com.example.mysquad.ViewModel.EventViewModel
+import com.example.mysquad.data.localRoom.entity.EventEntity
 import com.example.mysquad.navigation.Screen
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventDetailScreen(event: Event, currentUser: User, onNavigateBack: () -> Unit, navController: NavHostController,) {
-    val isHost = event.eventHost == currentUser
-    val isParticipantOrApplicant = event.eventParticipants.contains(currentUser) || event.eventApplicant.contains(currentUser)
+fun EventDetailScreen(
+    event: EventEntity,
+    currentUserId: String,
+    onNavigateBack: () -> Unit,
+    navController: NavHostController,
+    userMap: Map<String, String>,
+    viewModel: EventViewModel
+) {
+    val isHost = event.eventHostUserId == currentUserId
+    val isJoined = event.eventJoinList.contains(currentUserId)
+    val isPending = event.eventPendingList.contains(currentUserId)
+    val isParticipantOrApplicant = isJoined || isPending
+
+    val localDate = Instant.ofEpochMilli(event.eventDate)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+    val dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
     var showCancelDialog by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
 
@@ -62,6 +85,7 @@ fun EventDetailScreen(event: Event, currentUser: User, onNavigateBack: () -> Uni
             )
         }
     ) { paddingValues ->
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -69,175 +93,170 @@ fun EventDetailScreen(event: Event, currentUser: User, onNavigateBack: () -> Uni
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // 🗓️ Event Info Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+            InfoCard {
+                Text("Event Type: ${event.eventType}", style = MaterialTheme.typography.bodyLarge)
+                Text("Date: ${dateFmt.format(localDate)}   Time: ${event.eventStartTime} – ${event.eventEndTime}")
+            }
+
+            InfoCard {
+                val hostName = userMap[event.eventHostUserId] ?: event.eventHostUserId
+                Text("Host:", style = MaterialTheme.typography.titleSmall)
+                ClickableText(
+                    text = AnnotatedString(hostName),
+                    onClick = { },
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Text("Participants:", style = MaterialTheme.typography.titleSmall)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    event.eventJoinList.forEach { uid ->
+                        val name = userMap[uid] ?: uid
+                        ClickableText(
+                            text = AnnotatedString(name),
+                            onClick = { },
+                            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
                         )
-            ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Event Type: ${event.eventType}", style = MaterialTheme.typography.bodyLarge)
-                    Text("Date: ${event.eventDate}          Time: ${event.eventStartTime} - ${event.eventEndTime}")
-                }
-            }
-
-            // 👤 Host Info
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Host:", style = MaterialTheme.typography.titleSmall)
-                    ClickableText(
-                        text = AnnotatedString(event.eventHost.userName),
-                        onClick = { /* TODO: Navigate to host profile */ },
-                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
-                    )
-                    Column (modifier = Modifier.padding(top = 8.dp)) {
-                        Text("Participants:", style = MaterialTheme.typography.titleSmall)
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            event.eventParticipants.forEach { participant ->
-                                ClickableText(
-                                    text = AnnotatedString(participant.userName),
-                                    onClick = { /* TODO: Navigate to participant profile */ },
-                                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)
-                                )
-                            }
-                        }
                     }
                 }
             }
 
-            // 📝 Description
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Description:", style = MaterialTheme.typography.titleSmall)
-                    Text(event.eventDescription)
-                }
+            InfoCard {
+                Text("Description:", style = MaterialTheme.typography.titleSmall)
+                Text(event.eventDescription.ifBlank { "No description provided." })
             }
 
-
-            // Showing the location
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Location: ${event.eventAddress}")
-                    Text("(Map to be add in the future)")
-                }
+            InfoCard {
+                Text("Location: ${event.eventAddress}")
             }
 
-            // Showing the weather
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Weather: Sunny            Temperature: 36°C")
-                    Text("(Weather to be add in the future)")
-                }
-            }
-
-            // 🔘 Action Buttons
             if (isHost) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Button(
-                        onClick = { showCancelDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                    ) {
-                        Text("Cancel Event")
-                        Spacer(Modifier.width(8.dp))
-                        Icon(Icons.Filled.Delete, contentDescription = "Cancel Event")
-                    }
-
-                    BadgedBox(
-                        badge = {
-                            if (event.eventApplicant.isNotEmpty()) {
-                                Badge(
-                                    containerColor = Color.Red,
-                                    contentColor = Color.White
-                                ) {
-                                    Text("${event.eventApplicant.size}")
-                                }
-                            }
-                        }
-                    ) {
-                        Button(onClick = {
-                            navController.navigate(Screen.RequestsList.route)
-                        }) {
-                            Text("Applicants")
-                            Spacer(Modifier.width(8.dp))
-                            Icon(Icons.Filled.Notifications, contentDescription = "Applicants")
-                        }
-                    }
-                }
+                HostActionRow(
+                    pendingCount = event.eventPendingList.size,
+                    onCancel = { showCancelDialog = true },
+                    onApplicants = { navController.navigate(Screen.RequestsList.route) }
+                )
             } else if (isParticipantOrApplicant) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        onClick = { showExitDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                    ) {
-                        Text("Exit Event")
-                        Spacer(Modifier.width(8.dp))
-                        Icon(Icons.Filled.Delete, contentDescription = "Exit Event")
-                    }
-                }
+                ParticipantActionRow { showExitDialog = true }
             }
         }
 
-        // ❗ Confirmation Dialogs
         if (showCancelDialog) {
-            AlertDialog(
-                onDismissRequest = { showCancelDialog = false },
-                title = { Text("Cancel Event") },
-                text = { Text("Are you sure to delete the event?") },
-                confirmButton = {
-                    TextButton(onClick = { /* TODO: Delete event */ }) { Text("Delete") }
+            ConfirmationDialog(
+                title = "Cancel Event",
+                question = "Are you sure you want to delete this event?",
+                confirmLbl = "Delete",
+                onConfirm = {
+                    viewModel.cancelEvent(event.eventId)
+                    onNavigateBack()
                 },
-                dismissButton = {
-                    TextButton(onClick = { showCancelDialog = false }) { Text("Cancel") }
-                }
+                onDismiss = { showCancelDialog = false }
             )
         }
 
         if (showExitDialog) {
-            AlertDialog(
-                onDismissRequest = { showExitDialog = false },
-                title = { Text("Exit Event") },
-                text = { Text("Are you sure you want to exit this event?") },
-                confirmButton = {
-                    TextButton(onClick = { /* TODO: Confirm exit */ }) { Text("Confirm") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showExitDialog = false }) { Text("Cancel") }
-                }
+            ConfirmationDialog(
+                title = "Exit Event",
+                question = "Are you sure you want to exit this event?",
+                confirmLbl = "Confirm",
+                onConfirm = { },
+                onDismiss = { showExitDialog = false }
             )
         }
     }
+}
+
+
+/* ---------- small reusable composables ---------- */
+
+@Composable
+private fun InfoCard(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        border   = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            content = content
+        )
+    }
+}
+
+@Composable
+private fun HostActionRow(
+    pendingCount: Int,
+    onCancel: () -> Unit,
+    onApplicants: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Button(
+            onClick  = onCancel,
+            colors   = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+        ) {
+            Text("Cancel Event")
+            Spacer(Modifier.width(8.dp))
+            Icon(Icons.Filled.Delete, contentDescription = "Cancel Event")
+        }
+
+        BadgedBox(
+            badge = {
+                if (pendingCount > 0) {
+                    Badge(
+                        containerColor = Color.Red,
+                        contentColor   = Color.White
+                    ) { Text("$pendingCount") }
+                }
+            }
+        ) {
+            Button(onClick = onApplicants) {
+                Text("Applicants")
+                Spacer(Modifier.width(8.dp))
+                Icon(Icons.Filled.Notifications, contentDescription = "Applicants")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ParticipantActionRow(onExit: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(
+            onClick = onExit,
+            colors  = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+        ) {
+            Text("Exit Event")
+            Spacer(Modifier.width(8.dp))
+            Icon(Icons.Filled.Delete, contentDescription = "Exit Event")
+        }
+    }
+}
+
+@Composable
+private fun ConfirmationDialog(
+    title: String,
+    question: String,
+    confirmLbl: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title            = { Text(title) },
+        text             = { Text(question) },
+        confirmButton    = {
+            TextButton(onClick = onConfirm) { Text(confirmLbl) }
+        },
+        dismissButton    = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }

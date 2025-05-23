@@ -73,5 +73,9 @@ class AuthRepository(
         }
     }
 
+    fun getCurrentUserId(): String? {
+        return FirebaseAuth.getInstance().currentUser?.uid
+    }
+
     fun signOut() = auth.signOut()
 }

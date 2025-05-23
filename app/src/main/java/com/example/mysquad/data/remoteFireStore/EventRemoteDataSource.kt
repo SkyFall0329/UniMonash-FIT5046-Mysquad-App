@@ -52,4 +52,12 @@ class EventRemoteDataSource(
             null  // 如果文档不存在，返回 null
         }
     }
+
+    suspend fun deleteEventById(eventId: String) {
+        Firebase.firestore          // or your wrapper
+            .collection("events")
+            .document(eventId)
+            .delete()
+            .await()                // kotlinx-coroutines-play-services
+    }
 }

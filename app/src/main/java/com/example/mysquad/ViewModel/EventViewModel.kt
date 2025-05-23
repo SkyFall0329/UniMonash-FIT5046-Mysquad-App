@@ -4,7 +4,9 @@ import EventRepository
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mysquad.api.data.entityForTesting.jianhui.Event
 import com.example.mysquad.data.localRoom.entity.EventEntity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,6 +24,13 @@ class EventViewModel(
         initialValue = emptyList()
     )
     val events: StateFlow<List<EventEntity>> = _events
+    fun hostedBy(uid: String): Flow<List<EventEntity>> =
+        eventRepository.getHostEvents(uid)
+
+    fun joinedBy(uid: String): Flow<List<EventEntity>> =
+        eventRepository.getPending(uid)
+
+
     private val _relevantEvents = MutableStateFlow<List<EventEntity>>(emptyList())
     val relevantEvents: StateFlow<List<EventEntity>> = _relevantEvents
 
@@ -32,6 +41,14 @@ class EventViewModel(
             }
         }
     }
+
+    fun eventById(id: String): Flow<EventEntity?> =
+        eventRepository.eventById(id)
+
+    fun syncEventsToLocal() = viewModelScope.launch(Dispatchers.IO) {
+        eventRepository.syncEventsToLocal()
+    }
+
 
     private val _eventCreated = MutableStateFlow<Boolean?>(null)
     val eventCreated: StateFlow<Boolean?> = _eventCreated
@@ -46,6 +63,7 @@ class EventViewModel(
             }
         }
     }
+
 
     fun getAllEvents(): Flow<List<EventEntity>> {
         return eventRepository.getRemoteEvents()
@@ -77,4 +95,13 @@ class EventViewModel(
             }
         }
     }
+
+    fun cancelEvent(eventId: String) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            eventRepository.deleteEvent(eventId)
+        } catch (e: Exception) {
+            Log.e("EventViewModel", "Failed to delete event", e)
+        }
+    }
+
 }

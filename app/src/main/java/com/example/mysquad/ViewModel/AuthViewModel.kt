@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mysquad.firebase.AuthRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 sealed interface AuthUiState {
@@ -49,5 +50,9 @@ class AuthViewModel(
     }
     internal fun resetUiState() {
         uiState = AuthUiState.Idle
+    }
+
+    fun getCurrentUserId(): String? {
+        return FirebaseAuth.getInstance().currentUser?.uid
     }
 }
