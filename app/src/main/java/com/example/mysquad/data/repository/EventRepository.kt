@@ -20,6 +20,12 @@ class EventRepository(
         remoteEvents.forEach { eventDao.insertEvent(it) }
     }
 
+    suspend fun syncEventsToLocal2() {
+        val remoteEvents = remote.fetchEvents()
+        eventDao.clearAllEvents()
+        remoteEvents.forEach { eventDao.insertEvent(it) }
+    }
+
     fun getHostEvents(uid:String) =
         eventDao.getHostedBy(uid).map{it.sortedBy(EventEntity::eventDate)}
 

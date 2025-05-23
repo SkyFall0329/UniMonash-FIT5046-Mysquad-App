@@ -78,6 +78,15 @@ class EventViewModel(
         }
     }
 
+    fun syncFromFirebase2() {
+        viewModelScope.launch {
+            try {
+                eventRepository.syncEventsToLocal2()
+            } catch (_: Exception) {
+            }
+        }
+    }
+
     fun resetStatus() {
         _eventCreated.value = null
     }
