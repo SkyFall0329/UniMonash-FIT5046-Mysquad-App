@@ -101,7 +101,7 @@ fun AddScreen(modifier: Modifier = Modifier) {
     )
 
     val context = LocalContext.current
-    // 手动构造依赖
+
     val db = remember { AppDatabase.getInstance(context) }
     val eventDao = db.eventDao()
     val remote = EventRemoteDataSource()

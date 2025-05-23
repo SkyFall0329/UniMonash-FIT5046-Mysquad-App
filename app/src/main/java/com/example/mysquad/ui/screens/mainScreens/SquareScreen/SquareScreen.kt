@@ -91,7 +91,7 @@ fun SquareScreen(navController: NavController, modifier: Modifier = Modifier) {
 @Composable
 fun EventLazyColumn(navController: NavController) {
     val context = LocalContext.current
-    // 手动构造依赖
+    //
     val db = remember { AppDatabase.getInstance(context) }
     val eventDao = db.eventDao()
     val remote = EventRemoteDataSource()
@@ -102,14 +102,14 @@ fun EventLazyColumn(navController: NavController) {
         factory = EventViewModelFactory(eventRepository)
     )
 
-    // 插入数据
+    //
 //    viewModel.insertEvent(
 //        Event(2,EventType.Yoga,"1231","1231","123","1231",
 //        "1231", emptyList(), LocalDateTime.now(),LocalDateTime.now(),123,
 //            123,123, User("123","123"),
 //            listOf(User("123","123")), LocalDateTime.now(), LocalDateTime.now())
 //    )
-    // 删除event数据
+    //
 //    viewModel.deleteEvent(Event(1,EventType.Yoga,"1231","1231","123","1231",
 //        "1231", emptyList(), LocalDateTime.now(),LocalDateTime.now(),123,
 //            123,123, User("123","123"),
@@ -128,7 +128,7 @@ fun EventLazyColumn(navController: NavController) {
 //    LaunchedEffect(Unit) {
 //        viewModel.syncFromFirebase()
 //    }
-    // 读取event数据
+    //
     val eventList by viewModel.getAllEvents().collectAsState(emptyList())
 
     Column(modifier = Modifier.padding(vertical = 16.dp)) {
@@ -171,7 +171,7 @@ fun SportsEventCard(
         Text(
             text = getActivityIcon(eventType)+ eventTitle,
             style = MaterialTheme.typography.titleMedium.copy(
-                color = Color.Black // 强制设为黑色
+                color = Color.Black
             ),
             modifier = Modifier
                 .padding(horizontal = 10.dp, vertical = 30.dp)

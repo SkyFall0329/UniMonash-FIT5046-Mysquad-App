@@ -25,7 +25,7 @@ fun RegisterVerifyScreen(
     var code by remember { mutableStateOf("") }
     var countdown by remember { mutableStateOf(60) }
 
-    // 启动倒计时
+    //
     LaunchedEffect(key1 = countdown) {
         if (countdown > 0) {
             delay(1000L)

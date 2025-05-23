@@ -122,7 +122,7 @@ class EventViewModel(
     val pendingUsers: LiveData<List<UserProfileEntity>> = _pendingUsers
 
     fun loadPendingUsers(eventId: String) {
-        viewModelScope.launch(Dispatchers.IO) { // ⬅️ 加上 Dispatchers.IO
+        viewModelScope.launch(Dispatchers.IO) { //
             val users = eventRepository.getPendingUsersForEvent(eventId)
             withContext(Dispatchers.Main) {
                 _pendingUsers.value = users
