@@ -8,11 +8,11 @@ data class UserProfileEntity(
     @PrimaryKey val userId: String = "",
     val userName: String = "",
     val userEmail: String = "",
-    val userGender: String = "",
-    val userFaculty: String = "",
-    val userDegree: String = "",
-    val userBirthday: String = "",
-    val userPreferredSports: String = "",
-    val userBio: String = "",
+    val userGender: String? = null,
+    val userFaculty: String? = null,
+    val userDegree: String? = null,
+    val userBirthday: String? = null,
+    val userPreferredSports: String? = null,
+    val userBio: String? = null,
     val userUpdatedAt: Long = 0L
 )

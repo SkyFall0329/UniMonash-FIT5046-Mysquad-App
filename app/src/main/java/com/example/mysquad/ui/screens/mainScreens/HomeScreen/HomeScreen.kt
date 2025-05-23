@@ -99,7 +99,7 @@ fun HomeScreen() {
         factory = EventViewModelFactory(eventRepository)
     )
     LaunchedEffect(Unit) {
-        eventViewModel.syncFromFirebase()
+        eventViewModel.syncFromFirebase2()
         eventViewModel.observeRelevantEvents(userId.toString())
     }
 

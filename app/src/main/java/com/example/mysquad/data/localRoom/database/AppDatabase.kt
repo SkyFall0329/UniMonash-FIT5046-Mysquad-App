@@ -12,7 +12,7 @@ import com.example.mysquad.data.localRoom.entity.EventEntity
 
 @Database(
     entities = [UserProfileEntity::class, EventEntity::class],
-    version = 2, // ⬅️ 从 1 改为 2
+    version = 4, // 每次修改都加1,update this every time you change it
     exportSchema = false
 )
 @TypeConverters(Converters::class)

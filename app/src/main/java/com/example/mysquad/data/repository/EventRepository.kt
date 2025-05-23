@@ -18,9 +18,22 @@ class EventRepository(
 
     suspend fun syncEventsToLocal() {
         val remoteEvents = remote.fetchEvents()
+            .map{it.copy(eventDate=normaliseDate(it.eventDate))}
         eventDao.clearAllEvents()
         remoteEvents.forEach { eventDao.insertEvent(it) }
     }
+
+    suspend fun syncEventsToLocal2() {
+        val remoteEvents = remote.fetchEvents()
+        eventDao.clearAllEvents()
+        remoteEvents.forEach { eventDao.insertEvent(it) }
+    }
+
+    fun getHostEvents(uid:String) =
+        eventDao.getHostedBy(uid).map{it.sortedBy(EventEntity::eventDate)}
+
+    fun getPending(uid:String) =
+        eventDao.getPending(uid)
 
     fun getLocalEvents(): Flow<List<EventEntity>> = eventDao.getAllEvents()
     fun getRemoteEvents() = remote.fetchAllEvents()
@@ -32,6 +45,9 @@ class EventRepository(
         return null
 
     }
+
+    fun eventById(id: String): Flow<EventEntity?> =
+        eventDao.getEventById(id)
 
     suspend fun joinEvent(value: EventEntity) {
         remote.uploadEvent(value)
@@ -47,6 +63,18 @@ class EventRepository(
                     .sortedByDescending { it.eventDate }
             }
     }
+
+    suspend fun deleteEvent(eventId: String) {
+        // 1. remove from Firestore
+        remote.deleteEventById(eventId)
+
+        // 2. remove from Room
+        eventDao.deleteEventById(eventId)
+    }
+
+    /** Accepts seconds or millis → always returns millis. */
+    private fun normaliseDate(raw: Long): Long =
+        if (raw < 100_000_000_000L) raw * 1000 else raw
 
     suspend fun getPendingUsersForEvent(eventId: String): List<UserProfileEntity> {
         val event = eventDao.getEventById(eventId)
