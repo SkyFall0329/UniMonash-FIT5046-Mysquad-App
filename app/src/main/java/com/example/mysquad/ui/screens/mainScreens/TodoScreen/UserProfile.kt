@@ -21,36 +21,45 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mysquad.ViewModel.UserProfileViewModel
+import com.example.mysquad.ViewModel.factory.UserProfileViewModelFactory
 import com.example.mysquad.api.data.entityForTesting.jasmine.UserProfileData
+import com.example.mysquad.data.localRoom.database.AppDatabase
+import com.example.mysquad.data.remoteFireStore.UserRemoteDataSource
+import com.example.mysquad.data.repository.UserRepository
+import kotlin.toString
 
 
 @Composable
 fun UserProfile(userId: String, onBackClick: () -> Unit) {
-    // 模拟用户数据（可替换为后端加载）
-    val userData = remember {
-        when (userId) {
-            "1" -> UserProfileData(
-                name = "Ashely Zhu",
-                gender = "Female",
-                faculty = "IT",
-                degree = "Master of Data Science",
-                birthday = "1998-06-12",
-                favoriteSports = "Basketball",
-                bio = "I enjoy playing basketball very much!You can email me to AshelyZhu@student.monash.edu",
-                avatarRes = R.drawable.ic_menu_camera
-            )
-            "2" -> UserProfileData("James Ling", "Male", "Arts", "Bachelor of Music", "2001-09-05", "Dance", "I enjoy popping dance and bbox.", R.drawable.ic_menu_camera)
-            "3" -> UserProfileData("Jasmine", "Female", "Science", "Bachelor of Science", "2000-02-28", "Swimming", "I enjoy swimming!", R.drawable.ic_menu_camera)
-            "4" -> UserProfileData("Leta Zhang", "Male", "Engineering", "Master of Civil Engineering", "1997-12-08", "All kinds of sports", "I like all kinds of sports", R.drawable.ic_menu_camera)
-            "5" -> UserProfileData("Elan Ceres", "Male", "Education", "Bachelor of Education", "1999-11-01", "Reading", "I like reading.", R.drawable.ic_menu_camera)
-            "6" -> UserProfileData("Anon Chi", "Female", "Business", "Master of Marketing", "2000-07-18", "Guitar", "I like playing guitar and band activities.", R.drawable.ic_menu_camera)
-            else -> UserProfileData("Unknown", "Unknown", "N/A", "N/A", "N/A", "N/A", "N/A", R.drawable.ic_menu_gallery)
-        }
+    val context = LocalContext.current
+
+    val db = remember { AppDatabase.getInstance(context) }
+    val userDao = db.userDao()
+    val remote = UserRemoteDataSource()
+    val userRepository = UserRepository(userDao, remote)
+
+    val profileViewModel: UserProfileViewModel = viewModel(
+        factory = UserProfileViewModelFactory(userRepository)
+    )
+
+    val user by profileViewModel.user.collectAsState()
+
+
+    LaunchedEffect(Unit) {
+        profileViewModel.loadUserFromRoom(userId.toString())
+        profileViewModel.syncUserFromRemote(userId.toString())
+
     }
 
     Column(
@@ -108,19 +117,19 @@ fun UserProfile(userId: String, onBackClick: () -> Unit) {
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Name: ${userData.name}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Text("Name: ${user?.userName}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
                 HorizontalDivider()
-                Text("Gender: ${userData.gender}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Text("Gender: ${user?.userGender}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
                 HorizontalDivider()
-                Text("Faculty: ${userData.faculty}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Text("Faculty: ${user?.userFaculty}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
                 HorizontalDivider()
-                Text("Degree: ${userData.degree}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Text("Degree: ${user?.userDegree}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
                 HorizontalDivider()
-                Text("Birthday: ${userData.birthday}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Text("Birthday: ${user?.userBirthday}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
                 HorizontalDivider()
-                Text("Preferred Sports: ${userData.favoriteSports}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Text("Preferred Sports: ${user?.userPreferredSports}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
                 HorizontalDivider()
-                Text("Description: ${userData.bio}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Text("Description: ${user?.userBio}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
             }
         }
     }

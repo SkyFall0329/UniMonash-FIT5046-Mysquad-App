@@ -2,9 +2,12 @@ package com.example.mysquad.ViewModel
 
 import EventRepository
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mysquad.data.localRoom.entity.EventEntity
+import com.example.mysquad.data.localRoom.entity.UserProfileEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -77,4 +80,26 @@ class EventViewModel(
             }
         }
     }
+
+    private val _pendingUsers = MutableLiveData<List<UserProfileEntity>>()
+    val pendingUsers: LiveData<List<UserProfileEntity>> = _pendingUsers
+
+    fun loadPendingUsers(eventId: String) {
+        viewModelScope.launch {
+            _pendingUsers.value = eventRepository.getPendingUsersForEvent(eventId)
+        }
+    }
+    fun rejectUser(eventId: String, userId: String) {
+        viewModelScope.launch {
+            eventRepository.removeUserFromPendingList(eventId, userId)
+        }
+    }
+
+    fun acceptUser(eventId: String, userId: String){
+        viewModelScope.launch {
+            eventRepository.joinEvent(eventId,userId)
+        }
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package com.example.mysquad.ui.screens.mainScreens.TodoScreen
 
+import EventRepository
 import android.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,24 +36,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.mysquad.ViewModel.EventViewModel
+import com.example.mysquad.ViewModel.factory.EventViewModelFactory
 import com.example.mysquad.api.data.entityForTesting.jasmine.FriendRequest
+import com.example.mysquad.data.localRoom.database.AppDatabase
+import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 import com.example.mysquad.navigation.Screen
+import androidx.compose.runtime.livedata.observeAsState
 
 @Composable
-fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Unit) {
-    val friendRequests = remember {
-        mutableStateListOf(
-            FriendRequest("1", "Ashely Zhu", R.drawable.ic_menu_camera, "Sunday Basketball"),
-            FriendRequest("2", "James Ling", R.drawable.ic_menu_camera, "Popping show"),
-            FriendRequest("3", "Jasmine", R.drawable.ic_menu_camera, "Happy Swimming"),
-            FriendRequest("4", "Leta Zhang", R.drawable.ic_menu_camera, "Yoga Nice"),
-            FriendRequest("5", "Elan Ceres", R.drawable.ic_menu_camera, "K-pop dance"),
-            FriendRequest("6", "Anon Chi", R.drawable.ic_menu_camera, "Anime Watching")
+fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Unit, eventId: String) {
+
+    val context = LocalContext.current
+    val db = remember { AppDatabase.getInstance(context) }
+    val eventDao = db.eventDao()
+    val userDao = db.userDao()
+    val remote = EventRemoteDataSource()
+    val eventRepository = remember { EventRepository(
+        eventDao, userDao,remote) }
+    val eventViewModel: EventViewModel = viewModel(
+        factory = EventViewModelFactory(eventRepository)
+    )
+    val usersState = eventViewModel.pendingUsers.observeAsState(emptyList())
+    val users = usersState.value
+    LaunchedEffect(Unit) {
+        eventViewModel.loadPendingUsers(eventId)
+    }
+
+    val friendRequests = users.map {
+        FriendRequest(
+            id = it.userId,
+            name = it.userName,
+            avatarResId = R.drawable.ic_menu_camera, // ❗️你可以换成你自己的默认头像
+            message = it.userBio.ifEmpty { "No message." }
         )
     }
 
@@ -79,7 +103,7 @@ fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Un
             )
         }
 
-        if (friendRequests.isEmpty()) {
+        if (users.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,10 +122,11 @@ fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Un
                     FriendRequestItem(
                         request = request,
                         onAccept = {
-                            friendRequests.remove(request)
+                            eventViewModel.rejectUser(eventId,request.id)
+                            eventViewModel.acceptUser(eventId,request.id)
                         },
                         onReject = {
-                            friendRequests.remove(request)
+                            eventViewModel.rejectUser(eventId,request.id)
                         },
                         onAvatarClick = {
                             navController.navigate(Screen.UserProfile.createRoute(request.id))

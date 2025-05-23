@@ -92,8 +92,9 @@ fun HomeScreen() {
     val context = LocalContext.current
     val db = remember { AppDatabase.getInstance(context) }
     val eventDao = db.eventDao()
+    val userDao =db.userDao()
     val remote = EventRemoteDataSource()
-    val eventRepository = remember { EventRepository(eventDao, remote) }
+    val eventRepository = remember { EventRepository(eventDao, userDao,remote) }
     val eventViewModel: EventViewModel = viewModel(
         factory = EventViewModelFactory(eventRepository)
     )

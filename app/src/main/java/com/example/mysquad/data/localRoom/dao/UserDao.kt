@@ -17,6 +17,9 @@ interface UserDao {
     @Query("SELECT * FROM user_profile WHERE userId = :uid LIMIT 1")
     suspend fun getUserById(uid: String): UserProfileEntity?
 
+    @Query("SELECT * FROM user_profile WHERE userId IN (:userIds)")
+    suspend fun getUsersByIds(userIds: List<String>): List<UserProfileEntity>
+
     @Query("SELECT * FROM user_profile")
     fun getAllUsers(): Flow<List<UserProfileEntity>>
 

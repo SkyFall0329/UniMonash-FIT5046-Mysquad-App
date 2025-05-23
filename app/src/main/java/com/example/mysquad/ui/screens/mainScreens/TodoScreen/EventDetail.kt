@@ -186,7 +186,7 @@ fun EventDetailScreen(event: Event, currentUser: User, onNavigateBack: () -> Uni
                         }
                     ) {
                         Button(onClick = {
-                            navController.navigate(Screen.RequestsList.route)
+                            navController.navigate(Screen.RequestsList.createRoute(eventId = event.eventID))
                         }) {
                             Text("Applicants")
                             Spacer(Modifier.width(8.dp))
