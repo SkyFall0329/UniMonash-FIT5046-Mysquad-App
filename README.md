@@ -188,10 +188,10 @@ Educational use only
 
 ## 📞 Contact
 
-**jzhu0106@student.Monash.edu**
-**xyao0024@student.Monash.edu**
-**jlin0080@student.monash.edu**
-**lwan0243@student.monash.edu**
+| **jzhu0106@student.Monash.edu**
+| **xyao0024@student.Monash.edu**
+| **jlin0080@student.monash.edu**
+| **lwan0243@student.monash.edu**
 
 ---
 
