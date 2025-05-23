@@ -167,6 +167,10 @@ fun GetPostDetail(
                     if (userId == null || userId == "") {
                         return@ElevatedButton
                     }
+                    if (eventEntityState.value.eventHostUserId.contains(userId)) {
+                        Toast.makeText(context, "You are the host of this event", Toast.LENGTH_SHORT).show()
+                        return@ElevatedButton
+                    }
                     if (eventEntityState.value.eventJoinList.contains(userId)) {
                         Toast.makeText(context, "You have already joined this event", Toast.LENGTH_SHORT).show()
                         return@ElevatedButton

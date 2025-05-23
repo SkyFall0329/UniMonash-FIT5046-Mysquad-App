@@ -95,4 +95,5 @@ dependencies {
     implementation(libs.places)
     implementation(libs.places.compose)
     implementation (libs.kotlinx.coroutines.play.services.v164)
+    implementation(libs.androidx.work.runtime.ktx)
 }
