@@ -1,11 +1,14 @@
 import com.example.mysquad.data.localRoom.dao.EventDao
+import com.example.mysquad.data.localRoom.dao.UserDao
 import com.example.mysquad.data.localRoom.entity.EventEntity
+import com.example.mysquad.data.localRoom.entity.UserProfileEntity
 import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class EventRepository(
     private val eventDao: EventDao,
+    private val userDao: UserDao,
     private val remote: EventRemoteDataSource
 ) {
     suspend fun createEvent(event: EventEntity) {
@@ -72,4 +75,34 @@ class EventRepository(
     /** Accepts seconds or millis → always returns millis. */
     private fun normaliseDate(raw: Long): Long =
         if (raw < 100_000_000_000L) raw * 1000 else raw
+
+    suspend fun getPendingUsersForEvent(eventId: String): List<UserProfileEntity> {
+        val event = eventDao.eventById(eventId)
+        return if (event != null && event.eventPendingList.isNotEmpty()) {
+            userDao.getUsersByIds(event.eventPendingList)
+        } else {
+            emptyList()
+        }
+    }
+
+    suspend fun removeUserFromPendingList(eventId: String, userId: String) {
+        val event = eventDao.eventById(eventId)
+        if (event != null && event.eventPendingList.contains(userId)) {
+            val updatedList = event.eventPendingList.filterNot { it == userId }
+            val updatedEvent = event.copy(eventPendingList = updatedList)
+            eventDao.updateEvent(updatedEvent)
+        }
+    }
+
+    suspend fun joinEvent(eventId: String, userId: String) {
+        val event = eventDao.eventById(eventId)
+        if (event != null && !event.eventJoinList.contains(userId)) {
+            val updatedEvent = event.copy(
+                eventJoinList = event.eventJoinList + userId
+            )
+            eventDao.updateEvent(updatedEvent)
+        }
+    }
+
+
 }

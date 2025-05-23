@@ -28,7 +28,7 @@ fun RootNavGraph(
 
     val db = AppDatabase.getInstance(context)
     val remote = EventRemoteDataSource()
-    val repository = EventRepository(db.eventDao(), remote)
+    val repository = EventRepository(db.eventDao(), db.userDao(),remote)
     val eventViewModel: EventViewModel = viewModel(
         factory = EventViewModelFactory(repository)
     )

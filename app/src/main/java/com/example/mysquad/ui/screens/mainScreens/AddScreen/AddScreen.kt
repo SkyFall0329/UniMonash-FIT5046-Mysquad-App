@@ -105,7 +105,8 @@ fun AddScreen(modifier: Modifier = Modifier) {
     val db = remember { AppDatabase.getInstance(context) }
     val eventDao = db.eventDao()
     val remote = EventRemoteDataSource()
-    val eventRepository = EventRepository(eventDao, remote)
+    val userDao = db.userDao()
+    val eventRepository = EventRepository(eventDao, userDao,remote)
 
     val viewModel: EventViewModel = viewModel(
         factory = EventViewModelFactory(eventRepository)

@@ -2,10 +2,13 @@ package com.example.mysquad.ViewModel
 
 import EventRepository
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mysquad.api.data.entityForTesting.jianhui.Event
 import com.example.mysquad.data.localRoom.entity.EventEntity
+import com.example.mysquad.data.localRoom.entity.UserProfileEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EventViewModel(
     private val eventRepository: EventRepository
@@ -112,5 +116,30 @@ class EventViewModel(
             Log.e("EventViewModel", "Failed to delete event", e)
         }
     }
+
+
+    private val _pendingUsers = MutableLiveData<List<UserProfileEntity>>()
+    val pendingUsers: LiveData<List<UserProfileEntity>> = _pendingUsers
+
+    fun loadPendingUsers(eventId: String) {
+        viewModelScope.launch(Dispatchers.IO) { // ⬅️ 加上 Dispatchers.IO
+            val users = eventRepository.getPendingUsersForEvent(eventId)
+            withContext(Dispatchers.Main) {
+                _pendingUsers.value = users
+            }
+        }
+    }
+    fun rejectUser(eventId: String, userId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            eventRepository.removeUserFromPendingList(eventId, userId)
+        }
+    }
+
+    fun acceptUser(eventId: String, userId: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            eventRepository.joinEvent(eventId,userId)
+        }
+    }
+
 
 }

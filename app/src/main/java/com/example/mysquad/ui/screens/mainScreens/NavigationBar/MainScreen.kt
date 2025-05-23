@@ -149,10 +149,13 @@ fun MainScreen(
                     LoadingScreen(onBack = { navController.popBackStack() })
                 }
             }
-            composable(Screen.RequestsList.route) {
+            composable(route = Screen.RequestsList.route, arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+            ) {backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId")
                 RequestsList(
                     onAvatarClick = { /* TODO */ },
-                    navController = navController
+                    navController = navController,
+                    eventId = eventId.toString()
                 )
             }
             composable(

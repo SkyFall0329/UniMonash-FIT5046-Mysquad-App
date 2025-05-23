@@ -6,6 +6,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.mysquad.data.localRoom.entity.EventEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -15,11 +16,17 @@ interface EventDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEvent(event: EventEntity)
 
+    @Update
+    suspend fun updateEvent(event: EventEntity)
+
     @Query("SELECT * FROM events ORDER BY eventDate ASC")
     fun getAllEvents(): Flow<List<EventEntity>>
 
     @Query("SELECT * FROM events WHERE eventId = :id")
     fun getEventById(id: String): Flow<EventEntity?>
+
+    @Query("SELECT * FROM events WHERE eventId = :id")
+    fun eventById(id: String): EventEntity?
 
     @Delete
     suspend fun deleteEvent(event: EventEntity)
