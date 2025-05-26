@@ -125,15 +125,14 @@ fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Un
                     FriendRequestItem(
                         request = request,
                         onAccept = {
+                            eventViewModel.acceptUser(eventId, request.id)
                             coroutineScope.launch {
-                                eventViewModel.rejectUser(eventId, request.id)
-                                eventViewModel.acceptUser(eventId, request.id)
                                 eventViewModel.loadPendingUsers(eventId)
                             }
                         },
                         onReject = {
+                            eventViewModel.rejectUser(eventId, request.id)
                             coroutineScope.launch {
-                                eventViewModel.rejectUser(eventId, request.id)
                                 eventViewModel.loadPendingUsers(eventId)
                             }
                         },
