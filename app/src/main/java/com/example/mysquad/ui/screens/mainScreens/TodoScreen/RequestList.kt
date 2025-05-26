@@ -50,11 +50,14 @@ import com.example.mysquad.data.localRoom.database.AppDatabase
 import com.example.mysquad.data.remoteFireStore.EventRemoteDataSource
 import com.example.mysquad.navigation.Screen
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Unit, eventId: String) {
 
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val db = remember { AppDatabase.getInstance(context) }
     val eventDao = db.eventDao()
     val userDao = db.userDao()
@@ -74,7 +77,7 @@ fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Un
         FriendRequest(
             id = it.userId,
             name = it.userName,
-            avatarResId = R.drawable.ic_menu_camera, // ❗️你可以换成你自己的默认头像
+            avatarResId = R.drawable.ic_menu_camera,
             message = it.userBio?.ifEmpty { "No message." } ?: " "
         )
     }
@@ -122,11 +125,17 @@ fun RequestsList(navController: NavHostController, onAvatarClick: (String) -> Un
                     FriendRequestItem(
                         request = request,
                         onAccept = {
-                            eventViewModel.rejectUser(eventId,request.id)
-                            eventViewModel.acceptUser(eventId,request.id)
+                            coroutineScope.launch {
+                                eventViewModel.rejectUser(eventId, request.id)
+                                eventViewModel.acceptUser(eventId, request.id)
+                                eventViewModel.loadPendingUsers(eventId)
+                            }
                         },
                         onReject = {
-                            eventViewModel.rejectUser(eventId,request.id)
+                            coroutineScope.launch {
+                                eventViewModel.rejectUser(eventId, request.id)
+                                eventViewModel.loadPendingUsers(eventId)
+                            }
                         },
                         onAvatarClick = {
                             navController.navigate(Screen.UserProfile.createRoute(request.id))

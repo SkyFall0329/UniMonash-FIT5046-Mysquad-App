@@ -90,17 +90,25 @@ class EventRepository(
         if (event != null && event.eventPendingList.contains(userId)) {
             val updatedList = event.eventPendingList.filterNot { it == userId }
             val updatedEvent = event.copy(eventPendingList = updatedList)
+
             eventDao.updateEvent(updatedEvent)
+            remote.uploadEvent(updatedEvent)
         }
     }
 
     suspend fun joinEvent(eventId: String, userId: String) {
         val event = eventDao.eventById(eventId)
         if (event != null && !event.eventJoinList.contains(userId)) {
+            val updatedPending = event.eventPendingList.filterNot { it == userId }
+            val updatedJoin = event.eventJoinList + userId
+
             val updatedEvent = event.copy(
-                eventJoinList = event.eventJoinList + userId
+                eventPendingList = updatedPending,
+                eventJoinList = updatedJoin
             )
+
             eventDao.updateEvent(updatedEvent)
+            remote.uploadEvent(updatedEvent)
         }
     }
 
