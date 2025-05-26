@@ -28,7 +28,7 @@ class NotificationWorker(
         val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "mysquad_channel"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "MySquad 通知", NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(channelId, "MySquad", NotificationManager.IMPORTANCE_DEFAULT)
             manager.createNotificationChannel(channel)
         }
         val notification = NotificationCompat.Builder(applicationContext, channelId)
