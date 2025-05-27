@@ -17,12 +17,9 @@ import com.example.mysquad.ViewModel.AuthViewModel
 import com.example.mysquad.ui.theme.MySquadTheme
 import com.example.mysquad.ui.theme.ThemeMode
 import android.Manifest
-import android.os.Build
-import android.util.Log
-import com.example.mysquad.ViewModel.UserProfileViewModel
 import com.example.mysquad.navigation.RootNavGraph
+import com.example.mysquad.workManager.dailyReminder
 import com.google.android.libraries.places.api.Places
-import java.security.MessageDigest
 
 
 class MainActivity : ComponentActivity() {
@@ -31,6 +28,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Places.initialize(applicationContext, "AIzaSyCoKwYA8ZnmXRFhKBiysdAxH7wKaTYj5mM")
+        dailyReminder(applicationContext)
 
         ActivityCompat.requestPermissions(
             this,

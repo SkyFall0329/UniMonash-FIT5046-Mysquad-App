@@ -66,4 +66,7 @@ interface EventDao {
 
     @Query("DELETE FROM events WHERE eventId = :id")
     suspend fun deleteEventById(id: String)
+
+    @Query("SELECT * FROM events WHERE date(eventDate, 'unixepoch') = date('now', 'localtime')")
+    fun getTodayEventsBlocking(): List<EventEntity>
 }
