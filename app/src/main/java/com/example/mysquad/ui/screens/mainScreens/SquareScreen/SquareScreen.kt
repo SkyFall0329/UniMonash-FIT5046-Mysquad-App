@@ -169,7 +169,7 @@ fun SportsEventCard(
             )
     ) {
         Text(
-            text = getActivityIcon(eventType)+ eventTitle,
+            text = eventType+ " - " +  eventTitle,
             style = MaterialTheme.typography.titleMedium.copy(
                 color = Color.Black
             ),

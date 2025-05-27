@@ -217,7 +217,7 @@ fun ActivityCard(activity: Activity, context: Context) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Activity title
             Text(
-                text = getActivityIcon(activity.type)+activity.title,
+                text = activity.type + " - " + activity.title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -261,7 +261,7 @@ fun ActivityCard(activity: Activity, context: Context) {
                 }
 
                 Button(onClick = {
-                    val message = getActivityIcon(activity.type) + activity.title + " will commence today!"
+                    val message = activity.type + " - " + activity.title + " will commence today!"
                     sendNotification(message, context)
                 }) {
                     Text("Notify Me!")

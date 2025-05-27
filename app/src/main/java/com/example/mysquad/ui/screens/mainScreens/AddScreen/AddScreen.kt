@@ -181,7 +181,7 @@ fun AddScreen(modifier: Modifier = Modifier) {
                     Downregulate(
                         labelText = "Start time",
                         selectedState = eventstarttime,
-                        states = listOf("10:00", "12:00", "13:00", "15:00", "16:00")
+                        states = listOf("08:00","09:00","10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00")
                     )
                 }
                 Spacer(modifier = Modifier.width(10.dp))
@@ -189,7 +189,7 @@ fun AddScreen(modifier: Modifier = Modifier) {
                     Downregulate(
                         labelText = "End time",
                         selectedState = eventendtime,
-                        states = listOf("14:00", "12:00", "13:00", "15:00", "16:00")
+                        states = listOf("09:00","10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00","18:00")
                     )
                 }
             }
