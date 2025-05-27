@@ -24,7 +24,7 @@ class NotificationWorker(
     workerParams: WorkerParameters
 ) : Worker(context, workerParams) {
     override fun doWork(): Result {
-        val inputMsg = inputData.getString("message")  // 即时任务会传值
+        val inputMsg = inputData.getString("message")
         val db = AppDatabase.getInstance(applicationContext)
         val todayEvents = db.eventDao().getTodayEventsBlocking()
 
