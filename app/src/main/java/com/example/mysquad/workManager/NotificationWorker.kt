@@ -1,5 +1,6 @@
 package com.example.mysquad.workManager
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -23,15 +24,21 @@ class NotificationWorker(
     workerParams: WorkerParameters
 ) : Worker(context, workerParams) {
     override fun doWork(): Result {
+        val inputMsg = inputData.getString("message")  // 即时任务会传值
         val db = AppDatabase.getInstance(applicationContext)
-        val todayEvents: List<EventEntity> = db.eventDao().getTodayEventsBlocking()
+        val todayEvents = db.eventDao().getTodayEventsBlocking()
 
-        if (todayEvents.isNotEmpty()) {
-            showNotification("PlaySquad Reminder", "You have ${todayEvents.size} event(s) today!")
+        val msg = inputMsg ?: if (todayEvents.isNotEmpty()) {
+            "You have ${todayEvents.size} event(s) today!"
+        } else null
+
+        msg?.let {
+            showNotification("PlaySquad Notification", it)
         }
+
         return Result.success()
     }
-
+    @SuppressLint("ServiceCast")
     private fun showNotification(title: String, message: String) {
         val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "mysquad_channel"
