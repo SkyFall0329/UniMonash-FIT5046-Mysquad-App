@@ -215,9 +215,9 @@ cd PlaySquad
 
 ## 👥 Development Team
 
-Letao Wang
-Jianhui Ling
-Jianqin Zhu
+Letao Wang|
+Jianhui Ling|
+Jianqin Zhu|
 Xueer Yao
 
 ## 📄 License
