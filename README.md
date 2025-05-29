@@ -51,8 +51,6 @@ PlaySquad is a Jetpack Compose-based Android application designed specifically f
 
 ### 🗓️ Smart Integrations
 
-* **Google Calendar API**
-* - Date selection for event creation and profile editing
 * **Google Maps API**
 * - Location search and selection for events
 * **Location Services**
@@ -70,29 +68,69 @@ PlaySquad is a Jetpack Compose-based Android application designed specifically f
 ### Key Dependencies
 
 ```gradle
-// UI & Compose
-implementation("androidx.compose.ui:ui")
-implementation("androidx.material3:material3")
-implementation("androidx.navigation:navigation-compose")
+// Firebase Dependencies (BOM + Modules)
+implementation(platform(libs.firebase.bom))
+implementation(libs.firebase.analytics)
+implementation(libs.google.firebase.analytics)
+implementation(libs.firebase.auth)
+implementation(libs.google.firebase.auth)
+implementation(libs.firebase.auth.ktx)
+implementation(libs.firebase.firestore)
+implementation(libs.firebase.firestore.ktx)
+implementation(libs.firebase.firestore.ktx.v2451)
+implementation(libs.firebase.firestore.ktx.v24100)
+implementation(libs.firebase.crashlytics)
 
-// Firebase Services
-implementation(platform("com.google.firebase:firebase-bom"))
-implementation("com.google.firebase:firebase-auth-ktx")
-implementation("com.google.firebase:firebase-firestore-ktx")
-implementation("com.google.firebase:firebase-analytics")
+// Google Authentication & Credentials Management
+implementation(libs.play.services.auth)
+implementation(libs.play.services.auth.v2110)
+implementation(libs.androidx.credentials)
+implementation(libs.androidx.credentials.play.services.auth)
+implementation(libs.googleid)
 
-// Google Services
-implementation("com.google.android.gms:play-services-auth")
-implementation("com.google.android.gms:play-services-maps")
-implementation("com.google.android.gms:play-services-location")
+// Maps & Location Services
+implementation(libs.play.services.location)
+implementation(libs.play.services.maps)
+implementation(libs.maps.compose)
+implementation(libs.places)
+implementation(libs.places.compose)
 
-// Local Database
-implementation("androidx.room:room-runtime")
-implementation("androidx.room:room-ktx")
+// Background Tasks (WorkManager)
+implementation(libs.androidx.work.runtime.ktx)
 
 // Network & API
-implementation("com.squareup.retrofit2:retrofit")
-implementation("com.squareup.retrofit2:converter-gson")
+implementation(libs.retrofit)
+implementation(libs.converter.gson)
+implementation(libs.gson)
+
+//Coroutines & Asynchronous Tasks
+implementation(libs.kotlinx.coroutines.play.services)
+implementation(libs.kotlinx.coroutines.play.services.v164)
+
+//Jetpack Compose & Material Design
+implementation(platform(libs.androidx.compose.bom))
+implementation(libs.androidx.ui)
+implementation(libs.androidx.ui.graphics)
+implementation(libs.androidx.ui.tooling.preview)
+implementation(libs.androidx.material3)
+implementation(libs.material3)
+implementation(libs.androidx.navigation.compose)
+implementation(libs.androidx.material.icons.extended)
+debugImplementation(libs.androidx.ui.tooling)
+debugImplementation(libs.androidx.ui.test.manifest)
+
+//Core AndroidX Libraries
+implementation(libs.androidx.core.ktx)
+implementation(libs.androidx.lifecycle.runtime.ktx)
+implementation(libs.androidx.activity.compose)
+implementation(libs.androidx.runtime.livedata)
+
+//Testing Libraries
+testImplementation(libs.junit)
+androidTestImplementation(libs.androidx.junit)
+androidTestImplementation(libs.androidx.espresso.core)
+androidTestImplementation(platform(libs.androidx.compose.bom))
+androidTestImplementation(libs.androidx.ui.test.junit4)
 ```
 
 ### System Requirements
@@ -177,7 +215,7 @@ cd PlaySquad
 
 ## 👥 Development Team
 
-Letao Zhang
+Letao Wang
 Jianhui Ling
 Jianqin Zhu
 Xueer Yao

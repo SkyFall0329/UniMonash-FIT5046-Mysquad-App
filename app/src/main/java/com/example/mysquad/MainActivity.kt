@@ -24,7 +24,7 @@ import com.google.android.libraries.places.api.Places
 
 class MainActivity : ComponentActivity() {
 
-    @RequiresApi(64) // 你的项目如果确实需要API 64，可保留；否则可能是误加
+    @RequiresApi(64)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Places.initialize(applicationContext, "AIzaSyCoKwYA8ZnmXRFhKBiysdAxH7wKaTYj5mM")

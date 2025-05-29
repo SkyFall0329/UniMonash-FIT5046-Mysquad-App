@@ -44,12 +44,8 @@ android {
 }
 
 dependencies {
-    // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))
-    // When using the BoM, don't specify versions in Firebase dependencies
     implementation(libs.firebase.analytics)
-    // Add the dependencies for any other desired Firebase products
-    // https://firebase.google.com/docs/android/setup#available-libraries
     implementation(libs.play.services.auth.v2110)
     implementation(libs.firebase.firestore)
     implementation (libs.firebase.firestore.ktx)

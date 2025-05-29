@@ -15,7 +15,7 @@ sealed class BottomBarItem(
 ) {
     object Home : BottomBarItem("home_screen", "Home", Icons.Default.Home)
     object Square : BottomBarItem("square_screen", "Square", Icons.Default.Public)
-    object Add : BottomBarItem("add_screen", "", Icons.Default.Add) // 中间加号不带文字
+    object Add : BottomBarItem("add_screen", "", Icons.Default.Add)
     object Todo : BottomBarItem("todo_screen", "Todo", Icons.Default.EventNote)
     object Profile : BottomBarItem("profile_screen", "Profile", Icons.Default.Person)
 
