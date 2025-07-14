@@ -1,6 +1,6 @@
 # **PlaySquad**
 
-A Social Event Organization App for Monash University Students**
+A Social Event Organization App for Monash University Students
 
 📱 **Overview**
 
